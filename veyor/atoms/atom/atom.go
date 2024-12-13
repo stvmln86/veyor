@@ -5,8 +5,13 @@ import "fmt"
 
 // Atom is a single parsed program value.
 type Atom interface {
-	Bool() string
+	// Bool returns the Atom as a boolean.
+	Bool() bool
+
+	// Native returns the Atom as a native value.
 	Native() any
+
+	// String returns the Atom as a string.
 	String() string
 }
 
