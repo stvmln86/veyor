@@ -6,13 +6,8 @@ import (
 	"strconv"
 )
 
+// Cell is a parsed integer value.
 type Cell int64
-
-// Is returns true if a string represents a Cell.
-func Is(s string) bool {
-	_, err := strconv.ParseInt(s, 10, 64)
-	return err == nil
-}
 
 // Parse returns a parsed Cell from a string.
 func Parse(s string) (Cell, error) {
@@ -24,17 +19,17 @@ func Parse(s string) (Cell, error) {
 	return Cell(i), nil
 }
 
-// Bool returns the Atom as a boolean.
+// Bool returns the Cell as a boolean.
 func (c Cell) Bool() bool {
 	return int64(c) != 0
 }
 
-// Native returns the Atom as a native value.
+// Native returns the Cell as a native value.
 func (c Cell) Native() any {
 	return int64(c)
 }
 
-// String returns the Atom as a string.
+// String returns the Cell as a string.
 func (c Cell) String() string {
 	return strconv.FormatInt(int64(c), 10)
 }

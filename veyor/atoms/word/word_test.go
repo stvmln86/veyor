@@ -1,4 +1,4 @@
-package cell
+package word
 
 import (
 	"testing"
@@ -8,34 +8,34 @@ import (
 
 func TestParse(t *testing.T) {
 	// success
-	c, err := Parse("123")
-	assert.Equal(t, Cell(123), c)
+	w, err := Parse("abc")
+	assert.Equal(t, Word("abc"), w)
 	assert.NoError(t, err)
 
-	// error - invalid Cell
-	c, err = Parse("")
-	assert.Zero(t, c)
-	assert.EqualError(t, err, `invalid Cell ""`)
+	// error - invalid Word
+	w, err = Parse("")
+	assert.Zero(t, w)
+	assert.EqualError(t, err, `invalid Word ""`)
 }
 
 func TestBool(t *testing.T) {
 	// success - true
-	ok := Cell(123).Bool()
+	ok := Word("abc").Bool()
 	assert.True(t, ok)
 
 	// success - false
-	ok = Cell(0).Bool()
+	ok = Word("").Bool()
 	assert.False(t, ok)
 }
 
 func TestNative(t *testing.T) {
 	// success
-	i := Cell(123).Native()
-	assert.Equal(t, int64(123), i)
+	i := Word("abc").Native()
+	assert.Equal(t, "abc", i)
 }
 
 func TestString(t *testing.T) {
 	// success
-	s := Cell(123).String()
-	assert.Equal(t, "123", s)
+	s := Word("abc").String()
+	assert.Equal(t, "abc", s)
 }

@@ -1,7 +1,12 @@
 // Package atom implements the Atom interface.
 package atom
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/stvmln86/veyor/veyor/atoms/cell"
+	"github.com/stvmln86/veyor/veyor/atoms/word"
+)
 
 // Atom is a single parsed program value.
 type Atom interface {
@@ -17,8 +22,13 @@ type Atom interface {
 
 // Atomise returns a parsed Atom from a string.
 func Atomise(s string) (Atom, error) {
-	switch {
-	default:
-		return nil, fmt.Errorf("invalid Atom %q", s)
+	if c, err := cell.Parse(s); err == nil {
+		return c, nil
 	}
+
+	if w, err := word.Parse(s); err == nil {
+		return w, nil
+	}
+
+	return nil, fmt.Errorf("invalid Atom %q", s)
 }
