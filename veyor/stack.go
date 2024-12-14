@@ -1,5 +1,10 @@
 package veyor
 
+import (
+	"strconv"
+	"strings"
+)
+
 // Stack is a last-in-first-out stack of integers.
 type Stack struct {
 	Items []int
@@ -43,4 +48,14 @@ func (s *Stack) Pop() int {
 // Push appends one or more integers to the top of the Stack.
 func (s *Stack) Push(is ...int) {
 	s.Items = append(s.Items, is...)
+}
+
+// String returns the Stack as a string.
+func (s *Stack) String() string {
+	var ss []string
+	for _, a := range s.Items {
+		ss = append(ss, strconv.Itoa(a))
+	}
+
+	return strings.Join(ss, " ")
 }

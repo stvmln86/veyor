@@ -1,6 +1,10 @@
 package veyor
 
-import "slices"
+import (
+	"slices"
+	"strconv"
+	"strings"
+)
 
 // Queue is a first-in-first-out queue of atoms.
 type Queue struct {
@@ -53,4 +57,19 @@ func (q *Queue) Enqueue(as ...any) {
 // Len returns the number of atoms in the Queue.
 func (q *Queue) Len() int {
 	return len(q.Atoms)
+}
+
+// String returns the Queue as a string.
+func (q *Queue) String() string {
+	var ss []string
+	for _, a := range q.Atoms {
+		switch a := a.(type) {
+		case int:
+			ss = append(ss, strconv.Itoa(a))
+		case string:
+			ss = append(ss, a)
+		}
+	}
+
+	return strings.Join(ss, " ")
 }

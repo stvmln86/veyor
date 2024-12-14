@@ -56,3 +56,9 @@ func TestStackPush(t *testing.T) {
 	s.Push(123, 456)
 	assert.Equal(t, []int{123, 456}, s.Items)
 }
+
+func TestStackString(t *testing.T) {
+	// success
+	s := NewStack(123, 456).String()
+	assert.Equal(t, "123 456", s)
+}

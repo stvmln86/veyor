@@ -74,3 +74,9 @@ func TestQueueLen(t *testing.T) {
 	i := NewQueue(123).Len()
 	assert.Equal(t, 1, i)
 }
+
+func TestQueueString(t *testing.T) {
+	// success
+	s := NewQueue(123, "abc").String()
+	assert.Equal(t, "123 abc", s)
+}

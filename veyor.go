@@ -15,30 +15,6 @@ import (
 	"github.com/stvmln86/veyor/veyor"
 )
 
-// part 4.2: stack operators
-/////////////////////////////
-
-// Dupe1 duplicates the last integer on a stack slice.
-func Dupe1(as *[]any, is *[]int) {
-	Push(is, Peek(is))
-}
-
-// Drop1 deletes the last integer on a stack slice.
-func Drop1(as *[]any, is *[]int) {
-	Pop(is)
-}
-
-// Len0 pushes the number of integers on a stack slice.
-func Len0(as *[]any, is *[]int) {
-	Push(is, len(*is))
-}
-
-// Swap2 swaps the last two integers on a stack slice.
-func Swap2(as *[]any, is *[]int) {
-	a, b := Pop(is), Pop(is)
-	Push(is, a, b)
-}
-
 // part 4.3: stdin/stdout operators
 ////////////////////////////////////
 
@@ -61,25 +37,6 @@ func Print1(as *[]any, is *[]int) {
 
 // part 4.4: logical operators
 ///////////////////////////////
-
-// Def0 sets a block to a stored Oper.
-func Def0(as *[]any, is *[]int) {
-	xs := DequeueTo(as, "end")
-
-	if len(xs) < 2 {
-		panic(`"def" block missing name/body`)
-	}
-
-	if _, ok := xs[0].(string); !ok {
-		panic(`"def" block name wrong type`)
-	}
-
-	Opers[xs[0].(string)] = func(as *[]any, is *[]int) {
-		ns := make([]any, len(xs)-1)
-		copy(ns, xs[1:])
-		EvaluateQueue(&ns, is)
-	}
-}
 
 // Eq2 pushes 1 or 0 if the top two integers are equal.
 func Eq2(as *[]any, is *[]int) {
@@ -104,31 +61,6 @@ func EvalN(as *[]any, is *[]int) {
 
 	if s := strings.TrimSpace(string(rs)); s != "" {
 		xs := Parse(string(rs))
-		EvaluateQueue(&xs, is)
-	}
-}
-
-// Loop1 evaluates a block for the value of the top integer in a stack slice.
-func Loop1(as *[]any, is *[]int) {
-	xs := DequeueTo(as, "done")
-
-	for range Pop(is) {
-		ns := make([]any, len(xs))
-		copy(ns, xs)
-		EvaluateQueue(&ns, is)
-
-		if Break {
-			Break = false
-			break
-		}
-	}
-}
-
-// If1 evaluates a block if the last integer in a stack slice is true.
-func If1(as *[]any, is *[]int) {
-	xs := DequeueTo(as, "then")
-
-	if Pop(is) != 0 {
 		EvaluateQueue(&xs, is)
 	}
 }
