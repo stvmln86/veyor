@@ -26,6 +26,12 @@ func init() {
 		"%": OpModulo,
 		"*": OpMultiply,
 		"-": OpSubtract,
+
+		// opers_stack.go
+		"drop": OpDrop,
+		"dup":  OpDup,
+		"len":  OpLen,
+		"swap": OpSwap,
 	}
 }
 
