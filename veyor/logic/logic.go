@@ -37,6 +37,10 @@ func init() {
 		"drop": Wrap(1, Drop1),
 		"roll": Wrap(3, Roll3),
 		"swap": Wrap(2, Swap2),
+
+		// stdio.go
+		"input": Input0,
+		"print": PrintN,
 	}
 }
 
