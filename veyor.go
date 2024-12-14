@@ -75,12 +75,9 @@ func DequeueTo(as *[]any, a any) []any {
 
 // Evaluate evaluates an atom against a Queue and Stack.
 func Evaluate(a any, as *[]any, is *[]int) {
-	fmt.Printf(`>>> a = "%v" · as = %v · is = %v`+"\n", a, as, is)
-
 	switch a := a.(type) {
 	case int:
 		*is = append(*is, a)
-
 	case string:
 		f, ok := Opers[a]
 		if !ok {
@@ -94,7 +91,8 @@ func Evaluate(a any, as *[]any, is *[]int) {
 // EvaluateQueue evaluates a Queue against a stack slice.
 func EvaluateQueue(as *[]any, is *[]int) {
 	for len(*as) > 0 {
-		Evaluate(Dequeue(as), as, is)
+		a := Dequeue(as)
+		Evaluate(a, as, is)
 	}
 }
 
@@ -229,15 +227,8 @@ func EvalN(as *[]any, is *[]int) {
 // Loop1 evaluates a block for the value of the top integer in a stack slice.
 func Loop1(as *[]any, is *[]int) {
 	xs := DequeueTo(as, "done")
-	i := Pop(is)
-	if i < 0 {
-		for {
-			EvaluateQueue(&xs, is)
-		}
-	} else {
-		for range Pop(is) {
-			EvaluateQueue(&xs, is)
-		}
+	for range Pop(is) {
+		EvaluateQueue(&xs, is)
 	}
 }
 
@@ -308,13 +299,13 @@ func main() {
 		def _print_stack · len if dump then       · end
 		def _prompt      · 32 62 _print_all input · end
 
-		-1 loop · _prompt eval _print_stack · done
+		999 loop · _prompt eval _print_stack · done
 	`)
 
 	EvaluateQueue(&as, &is)
 
 	// for {
-	// 	fmt.Print("> ")
+	// 	fmt.Print(" ")
 	// 	r := bufio.NewReader(os.Stdin)
 	// 	s, _ := r.ReadString('\n')
 	// 	as := Parse(s)
