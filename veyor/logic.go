@@ -1,6 +1,7 @@
 package veyor
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -56,12 +57,18 @@ func Evaluate(q *Queue, s *Stack) {
 		case string:
 			f, ok := Opers[a]
 			if !ok {
-				panic("invalid operator")
+				panic(fmt.Sprintf("invalid operator %q", a))
 			}
 
 			f(q, s)
 		}
 	}
+}
+
+// EvaluateSlice evaluates an atom slice against a Stack.
+func EvaluateSlice(as []any, s *Stack) {
+	q := NewQueue(as...)
+	Evaluate(q, s)
 }
 
 // EvaluateString evaluates a string against a Stack.

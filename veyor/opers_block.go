@@ -22,29 +22,26 @@ func OpDef(q *Queue, s *Stack) {
 		panic(`"def" name is wrong type`)
 	}
 
-	q2 := NewQueue(as...)
 	Opers[as[0].(string)] = func(q *Queue, s *Stack) {
-		Evaluate(q2, s)
+		EvaluateSlice(as[1:], s)
 	}
 }
 
-// OpIf evaluates a conditional if the top Stack integer is not zero.
+// OpIf evaluates a conditional if the top Stack integer is true.
 func OpIf(q *Queue, s *Stack) {
 	as := q.DequeueTo("then")
-	q2 := NewQueue(as...)
 
 	if s.Pop() != 0 {
-		Evaluate(q2, s)
+		EvaluateSlice(as, s)
 	}
 }
 
 // OpLoop evaluates a loop until broken.
 func OpLoop(q *Queue, s *Stack) {
 	as := q.DequeueTo("done")
-	q2 := NewQueue(as...)
 
 	for {
-		Evaluate(q2, s)
+		EvaluateSlice(as, s)
 
 		if Break {
 			Break = false

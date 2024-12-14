@@ -34,6 +34,15 @@ func TestEvaluate(t *testing.T) {
 	assert.Equal(t, []int{3}, s.Items)
 }
 
+func TestEvaluateSlice(t *testing.T) {
+	// setup
+	s := NewStack()
+
+	// success
+	EvaluateSlice([]any{1, 2, "+"}, s)
+	assert.Equal(t, []int{3}, s.Items)
+}
+
 func TestEvaluateString(t *testing.T) {
 	// setup
 	s := NewStack()
