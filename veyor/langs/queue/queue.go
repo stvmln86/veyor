@@ -4,6 +4,7 @@ package queue
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/stvmln86/veyor/veyor/atoms/atom"
 )
@@ -59,4 +60,14 @@ func (q *Queue) EnqueueAll(as []atom.Atom) {
 // Len returns the number of Atoms in the Queue.
 func (q *Queue) Len() int {
 	return len(q.Atoms)
+}
+
+// String returns the Queue as a string.
+func (q*Queue)String()string{
+	var ss []string
+	for _, a := range q.Atoms{
+		ss = append(ss, a.String())
+	}
+
+	return strings.Join(ss, " ")
 }

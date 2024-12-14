@@ -80,3 +80,9 @@ func TestPushAll(t *testing.T) {
 	q.EnqueueAll([]atom.Atom{cell.Cell(123), word.Word("abc")})
 	assert.Equal(t, []atom.Atom{cell.Cell(123), word.Word("abc")}, q.Atoms)
 }
+
+func TestString(t *testing.T) {
+	// success
+	s := New(cell.Cell(123), word.Word("abc")).String()
+	assert.Equal(t, "123 abc", s)
+}

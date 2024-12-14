@@ -4,6 +4,7 @@ package stack
 import (
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/stvmln86/veyor/veyor/atoms/cell"
 )
@@ -59,4 +60,14 @@ func (s *Stack) Push(c cell.Cell) {
 // PushAll appends a Cell slice to the end of the Stack.
 func (s *Stack) PushAll(cs []cell.Cell) {
 	s.Cells = append(s.Cells, cs...)
+}
+
+// String returns the Stack as a string.
+func (s *Stack) String() string {
+	var ss []string
+	for _, c := range s.Cells {
+		ss = append(ss, c.String())
+	}
+
+	return strings.Join(ss, " ")
 }

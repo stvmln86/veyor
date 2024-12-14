@@ -78,3 +78,9 @@ func TestPushAll(t *testing.T) {
 	s.PushAll([]cell.Cell{123, 456})
 	assert.Equal(t, []cell.Cell{123, 456}, s.Cells)
 }
+
+func TestString(t *testing.T) {
+	// success
+	s := New(123, 456).String()
+	assert.Equal(t, "123 456", s)
+}
