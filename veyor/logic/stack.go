@@ -1,6 +1,10 @@
 package logic
 
-import "github.com/stvmln86/veyor/veyor/atoms/cell"
+import (
+	"github.com/stvmln86/veyor/veyor/atoms/cell"
+	"github.com/stvmln86/veyor/veyor/langs/queue"
+	"github.com/stvmln86/veyor/veyor/langs/stack"
+)
 
 // Dupe1 duplicates the top Cell on the Stack.
 func Dupe1(cs []cell.Cell) []cell.Cell {
@@ -9,6 +13,12 @@ func Dupe1(cs []cell.Cell) []cell.Cell {
 
 // Drop1 deletes the top Cell on the Stack.
 func Drop1(cs []cell.Cell) []cell.Cell {
+	return nil
+}
+
+// Len0 returns the number of Cells on the Stack.
+func Len0(_ *queue.Queue, s *stack.Stack) error {
+	s.Push(cell.Cell(s.Len()))
 	return nil
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stvmln86/veyor/veyor/atoms/cell"
+	"github.com/stvmln86/veyor/veyor/langs/stack"
 )
 
 func TestDupe1(t *testing.T) {
@@ -17,6 +18,16 @@ func TestDrop1(t *testing.T) {
 	// success
 	cs := Drop1([]cell.Cell{1})
 	assert.Empty(t, cs)
+}
+
+func TestLen0(t *testing.T) {
+	// setup
+	s := stack.New()
+
+	// success
+	err := Len0(nil, s)
+	assert.Equal(t, []cell.Cell{0}, s.Cells)
+	assert.NoError(t, err)
 }
 
 func TestRoll3(t *testing.T) {

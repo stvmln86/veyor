@@ -35,6 +35,7 @@ func init() {
 		// stack.go
 		"dupe": Wrap(1, Dupe1),
 		"drop": Wrap(1, Drop1),
+		"len":  Len0,
 		"roll": Wrap(3, Roll3),
 		"swap": Wrap(2, Swap2),
 
