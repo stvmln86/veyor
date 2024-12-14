@@ -36,6 +36,7 @@ func TestPop(t *testing.T) {
 	// success
 	c, err := s.Pop()
 	assert.Equal(t, cell.Cell(123), c)
+	assert.Empty(t, s.Cells)
 	assert.NoError(t, err)
 
 	// error - Stack is empty
@@ -51,6 +52,7 @@ func TestPopN(t *testing.T) {
 	// success
 	cs, err := s.PopN(2)
 	assert.Equal(t, []cell.Cell{456, 123}, cs)
+	assert.Empty(t, s.Cells)
 	assert.NoError(t, err)
 
 	// error - Stack is insufficient
