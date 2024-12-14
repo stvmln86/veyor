@@ -24,12 +24,12 @@ func (s *Stack) Empty() bool {
 	return len(s.Cells) == 0
 }
 
-// Len returns the number of Cells in the Stack.
+// Len returns the number of Cells on the Stack.
 func (s *Stack) Len() int {
 	return len(s.Cells)
 }
 
-// Pop removes and returns the last Cell in the Stack.
+// Pop removes and returns the top Cell on the Stack.
 func (s *Stack) Pop() (cell.Cell, error) {
 	if len(s.Cells) == 0 {
 		return 0, fmt.Errorf("Stack is empty")
@@ -40,7 +40,7 @@ func (s *Stack) Pop() (cell.Cell, error) {
 	return c, nil
 }
 
-// PopN removes and returns the last N Cells in the Stack.
+// PopN removes and returns the top n Cells on the Stack.
 func (s *Stack) PopN(n int) ([]cell.Cell, error) {
 	if len(s.Cells) < n {
 		return nil, fmt.Errorf("Stack is insufficient")
@@ -52,12 +52,12 @@ func (s *Stack) PopN(n int) ([]cell.Cell, error) {
 	return cs, nil
 }
 
-// Push appends a Cell to the end of the Stack.
+// Push appends a Cell to the top of the Stack.
 func (s *Stack) Push(c cell.Cell) {
 	s.Cells = append(s.Cells, c)
 }
 
-// PushAll appends a Cell slice to the end of the Stack.
+// PushAll appends a Cell slice to the top of the Stack.
 func (s *Stack) PushAll(cs []cell.Cell) {
 	s.Cells = append(s.Cells, cs...)
 }

@@ -23,6 +23,12 @@ func init() {
 		"%": Wrap(2, Mod2),
 		"*": Wrap(2, Mul2),
 		"-": Wrap(2, Sub2),
+
+		// stack.go
+		"dupe": Wrap(1, Dupe1),
+		"drop": Wrap(1, Drop1),
+		"roll": Wrap(3, Roll3),
+		"swap": Wrap(2, Swap2),
 	}
 }
 
