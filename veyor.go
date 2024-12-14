@@ -11,6 +11,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/stvmln86/veyor/veyor"
 )
 
 var Break = false
@@ -304,49 +306,12 @@ func Nop0(as *[]any, is *[]int) {}
 //                             part x · the main runtime                             //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-func init() {
-	Opers = map[string]Oper{
-		// 4.1: mathematical operators
-		"+": Add2,
-		"/": Div2,
-		"%": Mod2,
-		"*": Mul2,
-		"-": Sub2,
-
-		// 4.2: stack operators
-		"dupe": Dupe1,
-		"drop": Drop1,
-		"len":  Len0,
-		"swap": Swap2,
-
-		// 4.3: stdin/stdout operators
-		"input": Input0,
-		"print": Print1,
-
-		// part 4.4: logical operators
-		"def":   Def0,
-		"eq?":   Eq2,
-		"break": Break0,
-		"eval":  EvalN,
-		"if":    If1,
-		"loop":  Loop1,
-		"not":   Not1,
-
-		// part 4.5: miscellaneous operators
-		"dump": Dump0,
-		"·":    Nop0,
-	}
-}
-
 func main() {
-	var is []int
-	var as = Parse(`
+	veyor.EvaluateString(`
 		def print0 · len loop · print · dupe 0 eq? if drop break then · done · end
 		def prompt · 0 32 62 print0 input · end
 
 		9 loop · prompt eval · len if dump then · done
 		0 33 101 121 66 print0
-	`)
-
-	EvaluateQueue(&as, &is)
+	`, veyor.NewStack())
 }
