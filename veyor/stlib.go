@@ -9,6 +9,23 @@ const Stlib = `
 		dup 2 * · swap -
 	end
 
+	( ** Conditional Functions ** )
+
+	def even?
+		( a -- a · Push 1 if the top integer is even. )
+		2 swap % · 0 eq? · if 1 else 0 then
+	end
+
+	def odd?
+		( a -- a · Push 1 if the top integer is odd. )
+		2 swap % · 0 eq? · if 0 else 1 then
+	end
+
+	def zero?
+		( a -- a · Push 1 if the top integer is zero. )
+		0 eq? · if 1 else 0 then
+	end
+
 	( ** Interactive Functions ** )
 
 	def repl
@@ -33,7 +50,7 @@ const Stlib = `
 
 	def print0
 		( a... -- · Print until an EOF zero. )
-		loop · dup 0 eq? · if drop break else print then ·	done
+		loop · dup zero? if drop break else print then · done
 	end
 
 	def prompt

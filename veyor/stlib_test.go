@@ -13,6 +13,11 @@ func TestStlib(t *testing.T) {
 	// success - boolean functions
 	assertCode(t, "2 not", -2)
 
+	// success - conditional functions
+	assertCode(t, "1 even? 2 even?", 0, 1)
+	assertCode(t, "1 odd? 2 odd?", 1, 0)
+	assertCode(t, "0 zero? 1 zero?", 1, 0)
+
 	// success - miscellaneous functions
 	assertCode(t, "·")
 
