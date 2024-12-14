@@ -32,6 +32,11 @@ func init() {
 		"dup":  OpDup,
 		"len":  OpLen,
 		"swap": OpSwap,
+
+		// opers_stdio.go
+		"eval":  OpEval,
+		"input": OpInput,
+		"print": OpPrint,
 	}
 }
 

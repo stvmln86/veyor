@@ -5,35 +5,12 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/stvmln86/veyor/veyor"
 )
-
-// part 4.3: stdin/stdout operators
-////////////////////////////////////
-
-// Input0 pushes a line from Stdin.
-func Input0(as *[]any, is *[]int) {
-	r := bufio.NewReader(os.Stdin)
-	bs, _ := r.ReadBytes('\n')
-	slices.Reverse(bs)
-
-	Push(is, 0)
-	for _, b := range bs {
-		Push(is, int(b))
-	}
-}
-
-// Print1 prints the last integer on a stack slice.
-func Print1(as *[]any, is *[]int) {
-	fmt.Printf("%c", Pop(is))
-}
 
 // part 4.4: logical operators
 ///////////////////////////////
@@ -44,24 +21,6 @@ func Eq2(as *[]any, is *[]int) {
 		Push(is, 1)
 	} else {
 		Push(is, 0)
-	}
-}
-
-// EvalN evaluates an entire stack slice.
-func EvalN(as *[]any, is *[]int) {
-	var rs []rune
-	for len(*is) > 0 {
-		i := Pop(is)
-		if i == 0 {
-			break
-		} else {
-			rs = append(rs, rune(i))
-		}
-	}
-
-	if s := strings.TrimSpace(string(rs)); s != "" {
-		xs := Parse(string(rs))
-		EvaluateQueue(&xs, is)
 	}
 }
 

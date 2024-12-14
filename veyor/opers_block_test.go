@@ -6,6 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestOpBreak(t *testing.T) {
+	// success
+	assertCode(t, "break")
+	assert.True(t, Break)
+}
+
 func TestOpDef(t *testing.T) {
 	// success
 	assertCode(t, "def foo 123 end foo", 123)
