@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+// OpDump prints the Stack.
+func OpDump(q *Queue, s *Stack) {
+	fmt.Fprintf(Stdout, "[ %s ]\n", s.String())
+}
+
 // OpEval evaluates the Stack up to an EOF zero.
 func OpEval(q *Queue, st *Stack) {
 	var rs []rune

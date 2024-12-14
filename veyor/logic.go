@@ -34,6 +34,7 @@ func init() {
 		"swap": OpSwap,
 
 		// opers_stdio.go
+		"dump":  OpDump,
 		"eval":  OpEval,
 		"input": OpInput,
 		"print": OpPrint,

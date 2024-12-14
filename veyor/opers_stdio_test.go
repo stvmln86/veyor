@@ -6,6 +6,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestOpDump(t *testing.T) {
+	// setup
+	b := mockStreams("")
+
+	// success
+	assertCode(t, "1 2 3 dump", 1, 2, 3)
+	assert.Equal(t, "[ 1 2 3 ]\n", b.String())
+}
+
 func TestOpEval(t *testing.T) {
 	// success
 	assertCode(t, "0 0 43 32 50 32 49 eval", 0, 3)
