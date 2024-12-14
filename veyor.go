@@ -5,54 +5,11 @@
 package main
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
-
 	"github.com/stvmln86/veyor/veyor"
 )
 
 // part 4.4: logical operators
 ///////////////////////////////
-
-// Eq2 pushes 1 or 0 if the top two integers are equal.
-func Eq2(as *[]any, is *[]int) {
-	if Pop(is) == Pop(is) {
-		Push(is, 1)
-	} else {
-		Push(is, 0)
-	}
-}
-
-// Not1 inverts an integer.
-func Not1(as *[]any, is *[]int) {
-	if Pop(is) == 0 {
-		Push(is, 1)
-	} else {
-		Push(is, 0)
-	}
-}
-
-// part 4.5: miscellaneous operators
-/////////////////////////////////////
-
-// Break0 sets a special flag to break a loop.
-func Break0(as *[]any, is *[]int) {
-	Break = true
-}
-
-// Dump0 prints a stack slice to Stdout.
-func Dump0(as *[]any, is *[]int) {
-	var ss []string
-	for _, i := range *is {
-		ss = append(ss, strconv.Itoa(i))
-	}
-
-	fmt.Printf("[ %s ]\n", strings.Join(ss, " "))
-}
-
-// Nop0 does nothing.
-func Nop0(as *[]any, is *[]int) {}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                             part x · the main runtime                             //

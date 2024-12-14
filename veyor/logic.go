@@ -20,6 +20,11 @@ func init() {
 		"if":    OpIf,
 		"loop":  OpLoop,
 
+		// opers_bools.go
+		"eq?": OpEq,
+		"not": OpNot,
+		"·":   OpNoOp,
+
 		// opers_maths.go
 		"+": OpAdd,
 		"/": OpDivide,
