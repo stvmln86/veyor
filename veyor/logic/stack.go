@@ -1,4 +1,4 @@
-package opers
+package logic
 
 import "github.com/stvmln86/veyor/veyor/atoms/cell"
 

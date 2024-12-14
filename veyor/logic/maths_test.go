@@ -1,4 +1,4 @@
-package opers
+package logic
 
 import (
 	"testing"

@@ -11,6 +11,11 @@ import (
 	"github.com/stvmln86/veyor/veyor/langs/stack"
 )
 
+func TestInit(t *testing.T) {
+	// success
+	assert.NotEmpty(t, Opers)
+}
+
 func TestEvaluate(t *testing.T) {
 	// setup
 	s := stack.New(1)
@@ -45,5 +50,15 @@ func TestParse(t *testing.T) {
 	// success
 	as, err := Parse("123 abc")
 	assert.Equal(t, []atom.Atom{cell.Cell(123), word.Word("abc")}, as)
+	assert.NoError(t, err)
+}
+
+func TestWrap(t *testing.T) {
+	// setup
+	s := stack.New(1, 2)
+
+	// success
+	err := Wrap(2, Add2)(nil, s)
+	assert.Equal(t, []cell.Cell{3}, s.Cells)
 	assert.NoError(t, err)
 }
