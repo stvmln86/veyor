@@ -13,6 +13,8 @@ import (
 	"strings"
 )
 
+var Break = false
+
 ///////////////////////////////////////////////////////////////////////////////////////
 //                              part 1 · stack functions                             //
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -182,6 +184,8 @@ func Input0(as *[]any, is *[]int) {
 	r := bufio.NewReader(os.Stdin)
 	bs, _ := r.ReadBytes('\n')
 	slices.Reverse(bs)
+
+	Push(is, 0)
 	for _, b := range bs {
 		Push(is, int(b))
 	}
@@ -227,22 +231,33 @@ func Eq2(as *[]any, is *[]int) {
 func EvalN(as *[]any, is *[]int) {
 	var rs []rune
 	for len(*is) > 0 {
-		rs = append(rs, rune(Pop(is)))
+		i := Pop(is)
+		if i == 0 {
+			break
+		} else {
+			rs = append(rs, rune(i))
+		}
 	}
 
-	xs := Parse(string(rs))
-	EvaluateQueue(&xs, is)
+	if s := strings.TrimSpace(string(rs)); s != "" {
+		xs := Parse(string(rs))
+		EvaluateQueue(&xs, is)
+	}
 }
 
 // Loop1 evaluates a block for the value of the top integer in a stack slice.
 func Loop1(as *[]any, is *[]int) {
 	xs := DequeueTo(as, "done")
-	i := Pop(is)
 
-	for n := 0; n < i; n++ {
+	for range Pop(is) {
 		ns := make([]any, len(xs))
 		copy(ns, xs)
 		EvaluateQueue(&ns, is)
+
+		if Break {
+			Break = false
+			break
+		}
 	}
 }
 
@@ -266,6 +281,11 @@ func Not1(as *[]any, is *[]int) {
 
 // part 4.5: miscellaneous operators
 /////////////////////////////////////
+
+// Break0 sets a special flag to break a loop.
+func Break0(as *[]any, is *[]int) {
+	Break = true
+}
 
 // Dump0 prints a stack slice to Stdout.
 func Dump0(as *[]any, is *[]int) {
@@ -304,12 +324,13 @@ func init() {
 		"print": Print1,
 
 		// part 4.4: logical operators
-		"def":  Def0,
-		"eq?":  Eq2,
-		"eval": EvalN,
-		"if":   If1,
-		"loop": Loop1,
-		"not":  Not1,
+		"def":   Def0,
+		"eq?":   Eq2,
+		"break": Break0,
+		"eval":  EvalN,
+		"if":    If1,
+		"loop":  Loop1,
+		"not":   Not1,
 
 		// part 4.5: miscellaneous operators
 		"dump": Dump0,
@@ -320,22 +341,12 @@ func init() {
 func main() {
 	var is []int
 	var as = Parse(`
-		def _print  · loop print done      · end
-		def _dump   · len if dump then     · end
-		def _prompt · 32 62 2 _print input · end
+		def print0 · len loop · print · dupe 0 eq? if drop break then · done · end
+		def prompt · 0 32 62 print0 input · end
 
-		9 loop · _prompt eval _dump · done
-		33 101 121 66 4 _print
+		9 loop · prompt eval · len if dump then · done
+		0 33 101 121 66 print0
 	`)
 
 	EvaluateQueue(&as, &is)
-
-	// for {
-	// 	fmt.Print(" ")
-	// 	r := bufio.NewReader(os.Stdin)
-	// 	s, _ := r.ReadString('\n')
-	// 	as := Parse(s)
-	// 	EvaluateQueue(&as, &is)
-	// 	fmt.Printf("[ %v ]\n", is)
-	// }
 }
