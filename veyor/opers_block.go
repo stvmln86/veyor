@@ -29,10 +29,18 @@ func OpDef(q *Queue, s *Stack) {
 
 // OpIf evaluates a conditional if the top Stack integer is true.
 func OpIf(q *Queue, s *Stack) {
-	as := q.DequeueTo("then")
+	var as0, as1 []any
+	if q.Contains("else") {
+		as1 = q.DequeueTo("else")
+		as0 = q.DequeueTo("then")
+	} else {
+		as1 = q.DequeueTo("then")
+	}
 
 	if s.Pop() != 0 {
-		EvaluateSlice(as, s)
+		EvaluateSlice(as1, s)
+	} else {
+		EvaluateSlice(as0, s)
 	}
 }
 

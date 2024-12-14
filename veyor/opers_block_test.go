@@ -31,11 +31,17 @@ func TestOpDef(t *testing.T) {
 }
 
 func TestOpIf(t *testing.T) {
-	// success - true
+	// success - single true
 	assertCode(t, "1 if 123 then", 123)
 
-	// success - false
+	// success - single false
 	assertCode(t, "0 if 123 then")
+
+	// success - else true
+	assertCode(t, "1 if 123 else 456 then", 123)
+
+	// success - else false
+	assertCode(t, "0 if 123 else 456 then", 456)
 }
 
 func TestOpLoopAndBreak(t *testing.T) {
