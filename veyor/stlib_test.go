@@ -22,6 +22,7 @@ func TestStlib(t *testing.T) {
 	assertCode(t, "·")
 
 	// success - stack functions
+	assertCode(t, "1 2 3 clear")
 	assertCode(t, "1 2 drop", 1)
 
 	// success - standard i/o functions

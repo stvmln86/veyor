@@ -41,6 +41,11 @@ const Stlib = `
 
 	( ** Stack Functions ** )
 
+	def clear
+		( a... -- · Drop all Stack integers. )
+		loop · len zero? · if break else drop · then · done
+	end
+
 	def drop
 		( a -- · Drop the top integer. )
 		if then
