@@ -214,6 +214,15 @@ func Def0(as *[]any, is *[]int) {
 	}
 }
 
+// Eq2 pushes 1 or 0 if the top two integers are equal.
+func Eq2(as *[]any, is *[]int) {
+	if Pop(is) == Pop(is) {
+		Push(is, 1)
+	} else {
+		Push(is, 0)
+	}
+}
+
 // EvalN evaluates an entire stack slice.
 func EvalN(as *[]any, is *[]int) {
 	var rs []rune
@@ -243,6 +252,15 @@ func If1(as *[]any, is *[]int) {
 
 	if Pop(is) != 0 {
 		EvaluateQueue(&xs, is)
+	}
+}
+
+// Not1 inverts an integer.
+func Not1(as *[]any, is *[]int) {
+	if Pop(is) == 0 {
+		Push(is, 1)
+	} else {
+		Push(is, 0)
 	}
 }
 
@@ -287,9 +305,11 @@ func init() {
 
 		// part 4.4: logical operators
 		"def":  Def0,
+		"eq?":  Eq2,
 		"eval": EvalN,
 		"if":   If1,
 		"loop": Loop1,
+		"not":  Not1,
 
 		// part 4.5: miscellaneous operators
 		"dump": Dump0,
