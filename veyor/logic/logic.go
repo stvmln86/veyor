@@ -21,6 +21,10 @@ var Opers map[word.Word]Oper
 // init initialises the Opers map.
 func init() {
 	Opers = map[word.Word]Oper{
+		// conds.go
+		"if":  If1,
+		"def": Def0,
+
 		// maths.go
 		"+": Wrap(2, Add2),
 		"/": Wrap(2, Div2),
