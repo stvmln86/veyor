@@ -27,14 +27,14 @@ func init() {
 }
 
 // Wrap returns a Cell slice function as an Oper.
-func Wrap(n int, f func([]cell.Cell) cell.Cell) Oper {
+func Wrap(n int, f func([]cell.Cell) []cell.Cell) Oper {
 	return func(_ *queue.Queue, s *stack.Stack) error {
 		cs, err := s.PopN(n)
 		if err != nil {
 			return err
 		}
 
-		s.Push(f(cs))
+		s.PushAll(f(cs))
 		return nil
 	}
 }

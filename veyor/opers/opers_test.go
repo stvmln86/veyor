@@ -15,7 +15,7 @@ func TestInit(t *testing.T) {
 
 func TestWrap(t *testing.T) {
 	// setup
-	f := func(cs []cell.Cell) cell.Cell { return cs[0] + cs[1] }
+	f := func(cs []cell.Cell) []cell.Cell { return []cell.Cell{cs[0] + cs[1]} }
 	s := stack.New(1, 2)
 
 	// success
