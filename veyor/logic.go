@@ -16,6 +16,7 @@ func init() {
 	Opers = map[string]Oper{
 		// opers_block.go
 		"break": OpBreak,
+		"(":     OpComment,
 		"def":   OpDef,
 		"if":    OpIf,
 		"loop":  OpLoop,

@@ -5,6 +5,11 @@ func OpBreak(q *Queue, s *Stack) {
 	Break = true
 }
 
+// OpComment defines a comment.
+func OpComment(q *Queue, s *Stack) {
+	q.DequeueTo(")")
+}
+
 // OpDef defines a custom operator function.
 func OpDef(q *Queue, s *Stack) {
 	as := q.DequeueTo("end")

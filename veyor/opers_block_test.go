@@ -12,6 +12,11 @@ func TestOpBreak(t *testing.T) {
 	assert.True(t, Break)
 }
 
+func TestOpComment(t *testing.T) {
+	// success
+	assertCode(t, "( comment )")
+}
+
 func TestOpDef(t *testing.T) {
 	// success
 	assertCode(t, "def foo 123 end foo", 123)
