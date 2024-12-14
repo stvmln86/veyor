@@ -208,8 +208,9 @@ func Def0(as *[]any, is *[]int) {
 	}
 
 	Opers[xs[0].(string)] = func(as *[]any, is *[]int) {
-		xs = xs[1:]
-		EvaluateQueue(&xs, is)
+		ns := make([]any, len(xs)-1)
+		copy(ns, xs[1:])
+		EvaluateQueue(&ns, is)
 	}
 }
 
@@ -227,8 +228,12 @@ func EvalN(as *[]any, is *[]int) {
 // Loop1 evaluates a block for the value of the top integer in a stack slice.
 func Loop1(as *[]any, is *[]int) {
 	xs := DequeueTo(as, "done")
-	for range Pop(is) {
-		EvaluateQueue(&xs, is)
+	i := Pop(is)
+
+	for n := 0; n < i; n++ {
+		ns := make([]any, len(xs))
+		copy(ns, xs)
+		EvaluateQueue(&ns, is)
 	}
 }
 
@@ -295,11 +300,12 @@ func init() {
 func main() {
 	var is []int
 	var as = Parse(`
-		def _print_all   · len loop print done    · end
-		def _print_stack · len if dump then       · end
-		def _prompt      · 32 62 _print_all input · end
+		def _print  · loop print done      · end
+		def _dump   · len if dump then     · end
+		def _prompt · 32 62 2 _print input · end
 
-		999 loop · _prompt eval _print_stack · done
+		9 loop · _prompt eval _dump · done
+		33 101 121 66 4 _print
 	`)
 
 	EvaluateQueue(&as, &is)
