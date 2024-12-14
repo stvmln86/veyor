@@ -1,5 +1,5 @@
-// Package stdio implements standard input/output stream functions.
-package stdio
+// Package stio implements standard input/output stream functions.
+package stio
 
 import (
 	"bufio"
