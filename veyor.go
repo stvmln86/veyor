@@ -1,44 +1,20 @@
 package main
 
-// var (
-// 	mStack = stack.New()
-// 	mQueue = queue.New()
-// )
-//
-// func eval(s string) error {
-// 	as, err := logic.Parse(s)
-// 	if err != nil {
-// 		stio.Output("Error: %s.\n", err.Error())
-// 		return err
-// 	}
+/*
+TODO:
+- change PrintN to Print1, print top cell only
+- add EvalN to eval whole Stack
+- add Loop1 to loop for N turns or infinite if -1
+- add EvaluateString for main script.
+- add · as a no-op
+- replace all errors with panics?
 
-// 	mQueue.EnqueueAll(as)
-// 	if err := logic.EvaluateQueue(mQueue, mStack); err != nil {
-// 		stio.Output("Error: %s.\n", err.Error())
-// 		return err
-// 	}
+main script:
+	def _print_all   · len loop print done    · end
+	def _print_stack · len if dump then       · end
+	def _prompt      · 32 62 _print_all input · end
 
-// 	if !mStack.Empty() {
-// 		stio.Output("[ %s ]\n", mStack.String())
-// 	}
+	-1 loop · _prompt eval _print_stack · done
+*/
 
-// 	return nil
-// }
-
-func main() {
-	// fComm := flag.String("c", "", "execute string and exit")
-	// flag.Parse()
-
-	// switch {
-	// case *fComm != "":
-	// 	eval(*fComm)
-
-	// default:
-	// 	for {
-	// 		stio.Output("> ")
-	// 		if err := eval(stio.Input()); err != nil {
-	// 			continue
-	// 		}
-	// 	}
-	// }
-}
+func main() {}
