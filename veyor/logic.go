@@ -15,30 +15,23 @@ var Opers map[string]Oper
 // init initialises the Opers map.
 func init() {
 	Opers = map[string]Oper{
+		// opers_basic.go
+		"+":    OpAdd,
+		"/":    OpDivide,
+		"%":    OpModulo,
+		"*":    OpMultiply,
+		"-":    OpSubtract,
+		"dup":  OpDup,
+		"eq?":  OpEq,
+		"len":  OpLen,
+		"swap": OpSwap,
+
 		// opers_block.go
-		"break": OpBreak,
 		"(":     OpComment,
+		"break": OpBreak,
 		"def":   OpDef,
 		"if":    OpIf,
 		"loop":  OpLoop,
-
-		// opers_bools.go
-		"eq?": OpEq,
-		"not": OpNot,
-		"·":   OpNoOp,
-
-		// opers_maths.go
-		"+": OpAdd,
-		"/": OpDivide,
-		"%": OpModulo,
-		"*": OpMultiply,
-		"-": OpSubtract,
-
-		// opers_stack.go
-		"drop": OpDrop,
-		"dup":  OpDup,
-		"len":  OpLen,
-		"swap": OpSwap,
 
 		// opers_stdio.go
 		"dump":  OpDump,

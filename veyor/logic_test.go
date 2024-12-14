@@ -8,7 +8,7 @@ import (
 
 func assertCode(t *testing.T, s string, is ...int) *Stack {
 	st := NewStack()
-	EvaluateString(s, st)
+	EvaluateString(Stlib+s, st)
 
 	if len(is) == 0 {
 		assert.Empty(t, st.Items)
