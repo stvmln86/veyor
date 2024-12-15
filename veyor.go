@@ -277,6 +277,10 @@ func OpAssert(q *Queue, s *Stack) {
 	as := q.DequeueTo("end")
 	slices.Reverse(as)
 
+	if len(as) == 0 && !s.Empty() {
+		panic("assert error · stack should be empty")
+	}
+
 	for _, a := range as {
 		if s.Pop() != a.(int) {
 			q := NewQueue(as...)
