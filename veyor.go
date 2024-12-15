@@ -405,6 +405,11 @@ const Stlib = `
 		2 swap % · zero? if 1 else 0 then
 	end
 
+	def neq?
+		( a b -- c ) ( Push 1 if the top two Stack integers are not equal. )
+		eq? · if 0 else 1 then
+	end
+
 	def odd?
 		( a -- b ) ( Push 1 if the top Stack integer is odd. )
 		2 swap % · zero? if 0 else 1 then

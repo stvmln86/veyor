@@ -273,6 +273,7 @@ func TestStlib(t *testing.T) {
 
 		( ** Conditional Functions ** )
 		1 even? 2 even?          · assert 0 1   end
+		1 1 neq? 1 2 neq?        · assert 0 1   end
 		1 odd?  2 odd?           · assert 1 0   end
 		-1 zero? 0 zero? 1 zero? · assert 0 1 0 end
 
