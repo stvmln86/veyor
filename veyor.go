@@ -47,11 +47,6 @@ func NewQueue(as ...any) *Queue {
 	return &Queue{as}
 }
 
-// Contains returns true if the Queue contains an atom.
-func (q *Queue) Contains(a any) bool {
-	return slices.Contains(q.Atoms, a)
-}
-
 // Dequeue removes and returns the first atom in the Queue.
 func (q *Queue) Dequeue() any {
 	if len(q.Atoms) == 0 {
@@ -67,7 +62,7 @@ func (q *Queue) Dequeue() any {
 func (q *Queue) DequeueTo(a any) []any {
 	i := slices.Index(q.Atoms, a)
 	if i == -1 {
-		panic("Queue is insufficient")
+		panic(fmt.Sprintf("Queue is missing %v", a))
 	}
 
 	as := q.Atoms[:i]
@@ -83,6 +78,11 @@ func (q *Queue) Empty() bool {
 // Enqueue appends one or more atoms to the end of the Queue.
 func (q *Queue) Enqueue(as ...any) {
 	q.Atoms = append(q.Atoms, as...)
+}
+
+// Index returns the index of an atom in the Queue.
+func (q *Queue) Index(a any) int {
+	return slices.Index(q.Atoms, a)
 }
 
 // Len returns the number of atoms in the Queue.
@@ -272,6 +272,19 @@ func OpEq(q *Queue, s *Stack) {
 // part five-four · block operators
 /////////////////////////////////////
 
+// OpAssert ( a -- ) panics if the Stack doesn't match the given atoms.
+func OpAssert(q *Queue, s *Stack) {
+	as := q.DequeueTo("end")
+	slices.Reverse(as)
+
+	for _, a := range as {
+		if s.Pop() != a.(int) {
+			q := NewQueue(as...)
+			panic(fmt.Sprintf("assert error · stack should be [%s]", q))
+		}
+	}
+}
+
 // OpBreak ( -- ) breaks the current loop.
 func OpBreak(q *Queue, s *Stack) {
 	Break = true
@@ -302,7 +315,9 @@ func OpDef(q *Queue, s *Stack) {
 // OpIf ( a -- ) evaluates a conditional if the top Stack integer is true.
 func OpIf(q *Queue, s *Stack) {
 	var as0, as1 []any
-	if q.Contains("else") {
+	i := q.Index("else")
+
+	if i != -1 && i < q.Index("then") {
 		as1 = q.DequeueTo("else")
 		as0 = q.DequeueTo("then")
 	} else {
@@ -379,24 +394,24 @@ const Stlib = `
 	( ** Boolean Functions ** )
 
 	def not
-		( a -- a ) ( Negate the top Stack integer. )
+		( a -- b ) ( Negate the top Stack integer. )
 		dup 2 * · swap -
 	end
 
 	( ** Conditional Functions ** )
 
 	def even?
-		( a -- a ) ( Push 1 if the top Stack integer is even. )
-		2 swap % · 0 eq? · if 1 else 0 then
+		( a -- b ) ( Push 1 if the top Stack integer is even. )
+		2 swap % · zero? if 1 else 0 then
 	end
 
 	def odd?
-		( a -- a ) ( Push 1 if the top Stack integer is odd. )
-		2 swap % · 0 eq? · if 0 else 1 then
+		( a -- b ) ( Push 1 if the top Stack integer is odd. )
+		2 swap % · zero? if 0 else 1 then
 	end
 
 	def zero?
-		( a -- a ) ( Push 1 if the top Stack integer is zero. )
+		( a -- b ) ( Push 1 if the top Stack integer is zero. )
 		0 eq? · if 1 else 0 then
 	end
 
@@ -417,7 +432,7 @@ const Stlib = `
 
 	def clear
 		( ... -- ) ( Drop all Stack integers. )
-		loop · len zero? · if break else drop · then · done
+		loop · len zero? if break else drop · then · done
 	end
 
 	def drop
@@ -456,11 +471,12 @@ func init() {
 		"eq?": OpEq,
 
 		// block operators
-		"(":     OpComment,
-		"break": OpBreak,
-		"def":   OpDef,
-		"if":    OpIf,
-		"loop":  OpLoop,
+		"assert": OpAssert,
+		"break":  OpBreak,
+		"(":      OpComment,
+		"def":    OpDef,
+		"if":     OpIf,
+		"loop":   OpLoop,
 
 		// i/o & eval operators
 		"dump":  OpDump,

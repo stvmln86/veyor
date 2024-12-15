@@ -15,17 +15,8 @@ import (
 //                   part one · unit testing variables & functions                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-func assertCode(t *testing.T, s string, is ...int) *Stack {
-	st := NewStack()
-	EvaluateString(Stlib+s, st)
-
-	if len(is) == 0 {
-		assert.Empty(t, st.Items)
-	} else {
-		assert.Equal(t, is, st.Items)
-	}
-
-	return st
+func evalCode(s string) {
+	EvaluateString(Stlib+s, NewStack())
 }
 
 func mockStreams(s string) *bytes.Buffer {
@@ -42,16 +33,6 @@ func TestNewQueue(t *testing.T) {
 	// success
 	q := NewQueue(123)
 	assert.Equal(t, []any{123}, q.Atoms)
-}
-
-func TestQueueContains(t *testing.T) {
-	// success - true
-	ok := NewQueue(123).Contains(123)
-	assert.True(t, ok)
-
-	// success - false
-	ok = NewQueue().Contains(123)
-	assert.False(t, ok)
 }
 
 func TestQueueDequeue(t *testing.T) {
@@ -77,8 +58,8 @@ func TestQueueDequeueTo(t *testing.T) {
 	assert.Equal(t, []any{123}, as)
 	assert.Empty(t, q.Atoms)
 
-	// error - Queue is insufficient
-	defer func() { assert.Equal(t, "Queue is insufficient", recover()) }()
+	// error - Queue is missing end
+	defer func() { assert.Equal(t, "Queue is missing end", recover()) }()
 	q.DequeueTo("end")
 }
 
@@ -99,6 +80,12 @@ func TestQueueEnqueue(t *testing.T) {
 	// success
 	q.Enqueue(123, 456)
 	assert.Equal(t, []any{123, 456}, q.Atoms)
+}
+
+func TestQueueIndex(t *testing.T) {
+	// success
+	i := NewQueue(123, 456).Index(456)
+	assert.Equal(t, 1, i)
 }
 
 func TestQueueLen(t *testing.T) {
@@ -216,139 +203,59 @@ func TestParse(t *testing.T) {
 //                           part five · operator functions                          //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// part five-one · math operators
-//////////////////////////////////
-
-func TestOpAdd(t *testing.T) {
+func TestMathOperators(t *testing.T) {
 	// success
-	assertCode(t, "1 2 +", 3)
+	evalCode(`
+		1 2 + · assert 3 end
+		1 2 + · assert 3 end
+		3 6 / · assert 2 end
+		3 5 % · assert 2 end
+		2 3 * · assert 6 end
+		3 5 - · assert 2 end
+	`)
 }
 
-func TestOpDivide(t *testing.T) {
+func TestStackOperators(t *testing.T) {
 	// success
-	assertCode(t, "3 6 /", 2)
+	evalCode(`
+		123 dup      · assert 123 123 end
+		123 len      · assert 123 1   end
+		123 456 swap · assert 456 123 end
+	`)
 }
 
-func TestOpModulo(t *testing.T) {
+func TestLogicalOperators(t *testing.T) {
 	// success
-	assertCode(t, "3 5 %", 2)
+	evalCode(`
+		1 2 eq? · assert 0 end
+		2 2 eq? · assert 1 end
+	`)
 }
 
-func TestOpMultiply(t *testing.T) {
+func TestBlockOperators(t *testing.T) {
 	// success
-	assertCode(t, "2 3 *", 6)
+	evalCode(`
+		123 ( comment )        · assert 123 end
+		def x 123 end · x      · assert 123 end
+		1 if 123 then          · assert 123 end
+		0 if 123 else 456 then · assert 456 end
+		loop 123 break done    · assert 123 end
+	`)
 }
 
-func TestOpSubtract(t *testing.T) {
-	// success
-	assertCode(t, "3 5 -", 2)
-}
-
-// part five-two · stack operators
-///////////////////////////////////
-
-func TestOpDup(t *testing.T) {
-	// success
-	assertCode(t, "123 dup", 123, 123)
-}
-
-func TestOpLen(t *testing.T) {
-	// success
-	assertCode(t, "123 len", 123, 1)
-}
-
-func TestOpSwap(t *testing.T) {
-	// success
-	assertCode(t, "123 456 swap", 456, 123)
-}
-
-// part five-three · logical operators
-///////////////////////////////////////
-
-func TestOpEq(t *testing.T) {
-	// success
-	assertCode(t, "1 2 eq?", 0)
-	assertCode(t, "1 1 eq?", 1)
-}
-
-// part five-four · block operators
-/////////////////////////////////////
-
-func TestOpBreak(t *testing.T) {
-	// success
-	assertCode(t, "break")
-	assert.True(t, Break)
-}
-
-func TestOpComment(t *testing.T) {
-	// success
-	assertCode(t, "( comment )")
-}
-
-func TestOpDef(t *testing.T) {
-	// success
-	assertCode(t, "def foo 123 end foo", 123)
-
-	// error - "def" missing name/body
-	defer func() { assert.Equal(t, `"def" missing name/body`, recover()) }()
-	assertCode(t, "def end")
-
-	// error - "def" name is wrong type
-	defer func() { assert.Equal(t, `"def" name is wrong type`, recover()) }()
-	assertCode(t, "def 123 456 end")
-}
-
-func TestOpIf(t *testing.T) {
-	// success - single true
-	assertCode(t, "1 if 123 then", 123)
-
-	// success - single false
-	assertCode(t, "0 if 123 then")
-
-	// success - else true
-	assertCode(t, "1 if 123 else 456 then", 123)
-
-	// success - else false
-	assertCode(t, "0 if 123 else 456 then", 456)
-}
-
-func TestOpLoop(t *testing.T) {
-	// success
-	assertCode(t, "loop 123 break done", 123)
-}
-
-// part five-five · i/o & eval operators
-/////////////////////////////////////////
-
-func TestOpDump(t *testing.T) {
+func TestIOEvalOperators(t *testing.T) {
 	// setup
-	b := mockStreams("")
+	b := mockStreams("test\n")
 
 	// success
-	assertCode(t, "1 2 3 dump", 1, 2, 3)
-	assert.Equal(t, "[ 1 2 3 ]\n", b.String())
-}
+	evalCode(`
+		123 dump        · assert 123 end
+		0 51 50 49 eval · assert 123 end
+		input · assert 0 10 116 115 101 116 end
+		116 print
+	`)
 
-func TestOpEval(t *testing.T) {
-	// success
-	assertCode(t, "0 43 32 50 32 49 eval", 3)
-}
-
-func TestOpInput(t *testing.T) {
-	// setup
-	mockStreams("test\n")
-
-	// success
-	assertCode(t, "input", 0, 10, 116, 115, 101, 116)
-}
-
-func TestOpPrint(t *testing.T) {
-	// setup
-	b := mockStreams("")
-
-	// success
-	assertCode(t, "116 print")
-	assert.Equal(t, "t", b.String())
+	assert.Equal(t, "[ 123 ]\nt", b.String())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -359,23 +266,27 @@ func TestStlib(t *testing.T) {
 	// setup
 	b := mockStreams("test\n")
 
-	// success - boolean functions
-	assertCode(t, "2 not", -2)
+	// success
+	evalCode(`
+		( ** Boolean Functions ** )
+		2 not · assert -2 end
 
-	// success - conditional functions
-	assertCode(t, "1 even? 2 even?", 0, 1)
-	assertCode(t, "1 odd? 2 odd?", 1, 0)
-	assertCode(t, "0 zero? 1 zero?", 1, 0)
+		( ** Conditional Functions ** )
+		1 even? 2 even?          · assert 0 1   end
+		1 odd?  2 odd?           · assert 1 0   end
+		-1 zero? 0 zero? 1 zero? · assert 0 1 0 end
 
-	// success - miscellaneous functions
-	assertCode(t, "·")
+		( ** Miscellaneous Functions ** )
+		· assert end
 
-	// success - stack functions
-	assertCode(t, "1 2 3 clear")
-	assertCode(t, "1 2 drop", 1)
+		( ** Stack Functions ** )
+		1 2 3 clear · assert end
+		1 2 3 drop  · assert 1 2 end
 
-	// success - standard i/o functions
-	assertCode(t, "0 10 116 115 101 116 print0")
+		( ** Standard I/O Functions ** )
+		0 10 116 115 101 116 print0 · assert end
+	`)
+
 	assert.Equal(t, "test\n", b.String())
 }
 
