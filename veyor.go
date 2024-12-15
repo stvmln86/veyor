@@ -6,6 +6,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -497,6 +498,15 @@ func init() {
 
 // main runs the main Veyor program.
 func main() {
-	s := NewStack()
-	EvaluateString(Stlib+"repl", s)
+	f := flag.NewFlagSet("veyor", flag.ExitOnError)
+	c := f.String("c", "", "execute string and exit")
+	f.Parse(os.Args[1:])
+
+	switch {
+	case *c != "":
+		EvaluateString(Stlib+*c+" dump", NewStack())
+
+	default:
+		EvaluateString(Stlib+" repl", NewStack())
+	}
 }
