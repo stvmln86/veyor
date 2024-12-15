@@ -221,6 +221,7 @@ func TestStackOperators(t *testing.T) {
 		123 dup      · assert 123 123 end
 		123 len      · assert 123 1   end
 		123 456 swap · assert 456 123 end
+		1 2 3 rot    · assert 2 3 1 end
 	`)
 }
 

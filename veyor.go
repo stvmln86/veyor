@@ -253,6 +253,12 @@ func OpLen(q *Queue, s *Stack) {
 	s.Push(s.Len())
 }
 
+// OpRot ( a b c -- b c a ) rotates the top three Stack integers.
+func OpRot(q *Queue, s *Stack) {
+	a, b, c := s.Pop(), s.Pop(), s.Pop()
+	s.Push(b, a, c)
+}
+
 // OpSwap ( a b -- b a ) swaps the top two Stack integers.
 func OpSwap(q *Queue, s *Stack) {
 	s.Push(s.Pop(), s.Pop())
@@ -475,6 +481,7 @@ func init() {
 		// stack operators
 		"dup":  OpDup,
 		"len":  OpLen,
+		"rot":  OpRot,
 		"swap": OpSwap,
 
 		// logical operators
