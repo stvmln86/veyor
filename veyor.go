@@ -35,14 +35,23 @@ type Oper func(*[]any, *[]int)
 var Opers map[string]Oper
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                          part two · collection functions                          //
+//                            part two · helper functions                            //
+///////////////////////////////////////////////////////////////////////////////////////
+
+// Try panics on a true boolean with a formatted error message.
+func Try(b bool, s string, as ...any) {
+	if b {
+		panic(fmt.Sprintf(s, as...))
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+//                         part three · collection functions                         //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Dequeue removes and returns the first atom in an atom slice.
 func Dequeue(as *[]any) any {
-	if len(*as) == 0 {
-		panic("queue is empty")
-	}
+	Try(len(*as) == 0, "queue is empty")
 
 	a := (*as)[0]
 	(*as) = (*as)[1:]
@@ -52,9 +61,7 @@ func Dequeue(as *[]any) any {
 // DequeueTo removes and returns all atoms up to an atom in an atom slice.
 func DequeueTo(as *[]any, a any) []any {
 	i := slices.Index(*as, a)
-	if i == -1 {
-		panic(fmt.Sprintf("queue is missing %v", a))
-	}
+	Try(i == -1, "queue is missing %v", a)
 
 	as2 := (*as)[:i]
 	*as = (*as)[i+1:]
@@ -63,18 +70,14 @@ func DequeueTo(as *[]any, a any) []any {
 
 // Peek returns the top integer on an integer slice.
 func Peek(is *[]int) int {
-	if len(*is) == 0 {
-		panic("stack is empty")
-	}
+	Try(len(*is) == 0, "stack is empty")
 
 	return (*is)[len(*is)-1]
 }
 
 // Pop removes and returns the top integer on an integer slice.
 func Pop(is *[]int) int {
-	if len(*is) == 0 {
-		panic("stack is empty")
-	}
+	Try(len(*is) == 0, "stack is empty")
 
 	i := (*is)[len(*is)-1]
 	*is = (*is)[:len(*is)-1]
@@ -87,7 +90,7 @@ func Push(is *[]int, xs ...int) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                   part three · parsing and evaluating functions                   //
+//                    part four · parsing and evaluating functions                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Evaluate evaluates a Queue against a Stack.
@@ -98,10 +101,7 @@ func Evaluate(as *[]any, is *[]int) {
 			Push(is, a)
 		case string:
 			f, ok := Opers[a]
-			if !ok {
-				panic(fmt.Sprintf("invalid operator %q", a))
-			}
-
+			Try(!ok, "invalid operator %q", a)
 			f(as, is)
 		}
 	}
@@ -136,19 +136,29 @@ func Parse(s string) []any {
 //////////////////////////////////
 
 // OpAdd ( a b -- c ) adds the top two Stack integers.
-func OpAdd(as *[]any, is *[]int) { Push(is, Pop(is)+Pop(is)) }
+func OpAdd(as *[]any, is *[]int) {
+	Push(is, Pop(is)+Pop(is))
+}
 
 // OpDivide ( a b -- c ) divides the top two Stack integers.
-func OpDivide(as *[]any, is *[]int) { Push(is, Pop(is)/Pop(is)) }
+func OpDivide(as *[]any, is *[]int) {
+	Push(is, Pop(is)/Pop(is))
+}
 
 // OpModulo ( a b -- c ) modulos the top two Stack integers.
-func OpModulo(as *[]any, is *[]int) { Push(is, Pop(is)%Pop(is)) }
+func OpModulo(as *[]any, is *[]int) {
+	Push(is, Pop(is)%Pop(is))
+}
 
 // OpMultiply ( a b -- c ) multiplies the top two Stack integers.
-func OpMultiply(as *[]any, is *[]int) { Push(is, Pop(is)*Pop(is)) }
+func OpMultiply(as *[]any, is *[]int) {
+	Push(is, Pop(is)*Pop(is))
+}
 
 // OpSubtract ( a b -- c ) subtracts the top two Stack integers.
-func OpSubtract(as *[]any, is *[]int) { Push(is, Pop(is)-Pop(is)) }
+func OpSubtract(as *[]any, is *[]int) {
+	Push(is, Pop(is)-Pop(is))
+}
 
 // part five-two · stack operators
 ///////////////////////////////////
@@ -194,14 +204,10 @@ func OpAssert(as *[]any, is *[]int) {
 	xs := DequeueTo(as, "end")
 	slices.Reverse(xs)
 
-	if len(xs) == 0 && len(*is) != 0 {
-		panic("assert error · stack should be empty")
-	}
+	Try(len(xs) == 0 && len(*is) != 0, "assert: stack should be empty")
 
 	for _, a := range xs {
-		if Pop(is) != a.(int) {
-			panic(fmt.Sprintf("assert error · stack should be [%v]", xs))
-		}
+		Try(Pop(is) != a.(int), "assert: stack should be [%v]", xs)
 	}
 }
 
@@ -218,14 +224,10 @@ func OpComment(as *[]any, is *[]int) {
 // OpDef ( -- ) defines a custom operator.
 func OpDef(as *[]any, is *[]int) {
 	xs := DequeueTo(as, "end")
+	Try(len(xs) < 2, `"def" missing name/body`)
 
-	if len(xs) < 2 {
-		panic(`"def" missing name/body`)
-	}
-
-	if _, ok := xs[0].(string); !ok {
-		panic(`"def" name is wrong type`)
-	}
+	_, ok := xs[0].(string)
+	Try(!ok, `"def" name is wrong type`)
 
 	Opers[xs[0].(string)] = func(as *[]any, is *[]int) {
 		xs := xs[1:]
