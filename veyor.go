@@ -104,6 +104,13 @@ func Evaluate(as *[]any, is *[]int) {
 	}
 }
 
+// EvaluateCopy evaluates a copy of a queue against a stack.
+func EvaluateCopy(as *[]any, is *[]int) {
+	xs := make([]any, len(*as))
+	copy(xs, *as)
+	Evaluate(&xs, is)
+}
+
 // EvaluateString evaluates a string against a stack.
 func EvaluateString(s string, is *[]int) {
 	as := Parse(s)
@@ -202,8 +209,10 @@ func OpAssert(as *[]any, _ *[]int) {
 		*is2 = append(*is2, a.(int))
 	}
 
-	Evaluate(&as1, is1)
-	Try(!slices.Equal(*is1, *is2), "assert: %v => %v\n", as1, *is2)
+	EvaluateCopy(&as1, is1)
+	Try(!slices.Equal(*is1, *is2),
+		"assert: %v should equal %v, not %v\n", as1, *is2, *is1,
+	)
 }
 
 // OpBreak ( -- ) breaks the current loop.
@@ -254,9 +263,7 @@ func OpLoop(as *[]any, is *[]int) {
 	xs := DequeueTo(as, "done")
 
 	for {
-		var xs2 = make([]any, len(xs))
-		copy(xs2, xs)
-		Evaluate(&xs2, is)
+		EvaluateCopy(&xs, is)
 		if Break {
 			Break = false
 			break
@@ -311,13 +318,6 @@ func OpPrint(as *[]any, is *[]int) {
 
 // Stlib is Veyor's standard library.
 const Stlib = `
-	( ** Boolean Functions ** )
-
-	def not
-		( a -- b ) ( Negate the last stack integer. )
-		dup 2 * · swap -
-	end
-
 	( ** Conditional Functions ** )
 
 	def eq?
@@ -351,6 +351,11 @@ const Stlib = `
 		( -- ) ( Launch a read-evaluate-print loop. )
 		loop · 0 32 62 print0 · input eval · len if dump then · done
 	end
+
+	( ** Mathematical Functions ** )
+
+	def ! ( a -- b · negate a ) · dup 2 * swap -   · end
+	def ? ( a -- b   · bool a ) · if 1 else 0 then · end
 
 	( ** Miscellaneous Functions ** )
 

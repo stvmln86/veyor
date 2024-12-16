@@ -109,6 +109,17 @@ func TestEvaluate(t *testing.T) {
 	assert.Equal(t, []int{3}, *is)
 }
 
+func TestEvaluateCopy(t *testing.T) {
+	// setup
+	as := &[]any{1, 2, "+"}
+	is := new([]int)
+
+	// success
+	EvaluateCopy(as, is)
+	assert.NotEmpty(t, as)
+	assert.Equal(t, []int{3}, *is)
+}
+
 func TestEvaluateString(t *testing.T) {
 	// setup
 	is := new([]int)
@@ -176,15 +187,16 @@ func TestStlib(t *testing.T) {
 
 	// success
 	evalCode(`
-		( ** Boolean Functions ** )
-		assert 2 not => -2 end
-
 		( ** Conditional Functions ** )
 		assert 1 1 eq?   · 1 2 eq?   => 1 0 end
 		assert 1   even? · 2   even? => 0 1 end
 		assert 1 1 neq?  · 1 2 neq?  => 0 1 end
 		assert 1   odd?  · 2   odd?  => 1 0 end
 		assert 0   zero? · 1 zero?   => 1 0 end
+
+		( ** Mathematical Functions ** )
+		assert 2 !        => -2 end
+		assert 0 ? · -1 ? => 0 1 end
 
 		( ** Miscellaneous Functions ** )
 		assert · => end
