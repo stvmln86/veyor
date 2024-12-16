@@ -128,44 +128,33 @@ func TestParse(t *testing.T) {
 //                           part five · operator functions                          //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-func TestMathOperators(t *testing.T) {
-	// success
-	evalCode(`
-		assert 1 2 + => 3 end
-		assert 3 6 / => 2 end
-		assert 3 5 % => 2 end
-		assert 2 3 * => 6 end
-		assert 3 5 - => 2 end
-	`)
-}
-
-func TestStackOperators(t *testing.T) {
-	// success
-	evalCode(`
-		assert 1 dup     => 1 1   end
-		assert 1 len     => 1 1   end
-		assert 1 2 swap  => 2 1   end
-		assert 1 2 3 rot => 2 3 1 end
-	`)
-}
-
-func TestBlockOperators(t *testing.T) {
-	// success
-	evalCode(`
-		assert ( )                =>   end
-		assert def x 1 end x      => 1 end
-		assert 1 if 1 then        => 1 end
-		assert 0 if 1 else 2 then => 2 end
-		assert loop 1 break done  => 1 end
-	`)
-}
-
-func TestIOEvalOperators(t *testing.T) {
+func TestOperators(t *testing.T) {
 	// setup
 	b := mockStreams("t\n")
 
 	// success
 	evalCode(`
+		( ** Math Operators ** )
+		assert 1 2 + => 3 end
+		assert 3 6 / => 2 end
+		assert 3 5 % => 2 end
+		assert 2 3 * => 6 end
+		assert 3 5 - => 2 end
+
+		( ** Stack Operators ** )
+		assert 1 dup     => 1 1   end
+		assert 1 len     => 1 1   end
+		assert 1 2 swap  => 2 1   end
+		assert 1 2 3 rot => 2 3 1 end
+
+		( ** Block Operators ** )
+		assert ( )                =>   end
+		assert def x 1 end x      => 1 end
+		assert 1 if 1 then        => 1 end
+		assert 0 if 1 else 2 then => 2 end
+		assert loop 1 break done  => 1 end
+
+		( ** I/O & Eval Operators ** )
 		assert 1 dump    => 1 end
 		assert 0 49 eval => 1 end
 		assert input     => 0 10 116 end
