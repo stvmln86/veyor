@@ -143,37 +143,37 @@ func TestMathOperators(t *testing.T) {
 func TestStackOperators(t *testing.T) {
 	// success
 	evalCode(`
-		123 dup      · assert 123 123 end
-		123 len      · assert 123 1   end
-		123 456 swap · assert 456 123 end
-		1 2 3 rot    · assert 2 3 1 end
+		1 dup     · assert 1 1 end
+		1 len     · assert 1 1   end
+		1 2 swap  · assert 2 1 end
+		1 2 3 rot · assert 2 3 1 end
 	`)
 }
 
 func TestBlockOperators(t *testing.T) {
 	// success
 	evalCode(`
-		123 ( comment )        · assert 123 end
-		def x 123 end · x      · assert 123 end
-		1 if 123 then          · assert 123 end
-		0 if 123 else 456 then · assert 456 end
-		loop 123 break done    · assert 123 end
+		1 ( comment )      · assert 1 end
+		def x 1 end · x    · assert 1 end
+		1 if 1 then        · assert 1 end
+		0 if 1 else 2 then · assert 2 end
+		loop 1 break done  · assert 1 end
 	`)
 }
 
 func TestIOEvalOperators(t *testing.T) {
 	// setup
-	b := mockStreams("test\n")
+	b := mockStreams("t\n")
 
 	// success
 	evalCode(`
-		123 dump        · assert 123 end
-		0 51 50 49 eval · assert 123 end
-		input · assert 0 10 116 115 101 116 end
+		1 dump    · assert 1 end
+		0 49 eval · assert 1 end
+		input · assert 0 10 116 end
 		116 print
 	`)
 
-	assert.Equal(t, ": [123]\nt", b.String())
+	assert.Equal(t, ": [1]\nt", b.String())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -190,11 +190,11 @@ func TestStlib(t *testing.T) {
 		2 not · assert -2 end
 
 		( ** Conditional Functions ** )
-		1 1 eq? 1 2 eq?          · assert 1 0   end
-		1 even? 2 even?          · assert 0 1   end
-		1 1 neq? 1 2 neq?        · assert 0 1   end
-		1 odd?  2 odd?           · assert 1 0   end
-		-1 zero? 0 zero? 1 zero? · assert 0 1 0 end
+		1 1 eq?   1 2 eq?   · assert 1 0 end
+		1   even? 2   even? · assert 0 1 end
+		1 1 neq?  1 2 neq?  · assert 0 1 end
+		1   odd?  2   odd?  · assert 1 0 end
+		0   zero? 1 zero?   · assert 1 0 end
 
 		( ** Miscellaneous Functions ** )
 		· assert end
