@@ -152,7 +152,7 @@ func TestStackOperators(t *testing.T) {
 func TestBlockOperators(t *testing.T) {
 	// success
 	evalCode(`
-		assert ( )                => end
+		assert ( )                =>   end
 		assert def x 1 end x      => 1 end
 		assert 1 if 1 then        => 1 end
 		assert 0 if 1 else 2 then => 2 end

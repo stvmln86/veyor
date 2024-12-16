@@ -323,7 +323,7 @@ const Stlib = `
 
 	def neq?
 		( a b -- c ) ( Push 1 if the last two integers in a stack are not equal. )
-		eq? · if 0 else 1 then
+		- · if 1 else 0 then
 	end
 
 	def odd?
