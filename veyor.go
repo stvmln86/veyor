@@ -185,15 +185,16 @@ func OpSwap(as *[]any, is *[]int) {
 /////////////////////////////////////
 
 // OpAssert ( a -- ) panics if a stack doesn't match the given atoms.
-func OpAssert(as *[]any, is *[]int) {
-	xs := DequeueTo(as, "end")
-	slices.Reverse(xs)
-
-	Try(len(xs) == 0 && len(*is) != 0, "assert: stack should be empty")
-
-	for _, a := range xs {
-		Try(Pop(is) != a.(int), "assert: stack should be %v", xs)
+func OpAssert(as *[]any, _ *[]int) {
+	is1 := new([]int)
+	is2 := new([]int)
+	as1 := DequeueTo(as, "=>")
+	for _, a := range DequeueTo(as, "end") {
+		*is2 = append(*is2, a.(int))
 	}
+
+	Evaluate(&as1, is1)
+	Try(!slices.Equal(*is1, *is2), "assert: %v => %v\n", as1, *is2)
 }
 
 // OpBreak ( -- ) breaks the current loop.

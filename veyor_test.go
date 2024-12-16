@@ -131,33 +131,32 @@ func TestParse(t *testing.T) {
 func TestMathOperators(t *testing.T) {
 	// success
 	evalCode(`
-		1 2 + · assert 3 end
-		1 2 + · assert 3 end
-		3 6 / · assert 2 end
-		3 5 % · assert 2 end
-		2 3 * · assert 6 end
-		3 5 - · assert 2 end
+		assert 1 2 + => 3 end
+		assert 3 6 / => 2 end
+		assert 3 5 % => 2 end
+		assert 2 3 * => 6 end
+		assert 3 5 - => 2 end
 	`)
 }
 
 func TestStackOperators(t *testing.T) {
 	// success
 	evalCode(`
-		1 dup     · assert 1 1 end
-		1 len     · assert 1 1   end
-		1 2 swap  · assert 2 1 end
-		1 2 3 rot · assert 2 3 1 end
+		assert 1 dup     => 1 1   end
+		assert 1 len     => 1 1   end
+		assert 1 2 swap  => 2 1   end
+		assert 1 2 3 rot => 2 3 1 end
 	`)
 }
 
 func TestBlockOperators(t *testing.T) {
 	// success
 	evalCode(`
-		1 ( comment )      · assert 1 end
-		def x 1 end · x    · assert 1 end
-		1 if 1 then        · assert 1 end
-		0 if 1 else 2 then · assert 2 end
-		loop 1 break done  · assert 1 end
+		assert ( )                => end
+		assert def x 1 end x      => 1 end
+		assert 1 if 1 then        => 1 end
+		assert 0 if 1 else 2 then => 2 end
+		assert loop 1 break done  => 1 end
 	`)
 }
 
@@ -167,9 +166,9 @@ func TestIOEvalOperators(t *testing.T) {
 
 	// success
 	evalCode(`
-		1 dump    · assert 1 end
-		0 49 eval · assert 1 end
-		input · assert 0 10 116 end
+		assert 1 dump    => 1 end
+		assert 0 49 eval => 1 end
+		assert input     => 0 10 116 end
 		116 print
 	`)
 
@@ -187,24 +186,24 @@ func TestStlib(t *testing.T) {
 	// success
 	evalCode(`
 		( ** Boolean Functions ** )
-		2 not · assert -2 end
+		assert 2 not => -2 end
 
 		( ** Conditional Functions ** )
-		1 1 eq?   1 2 eq?   · assert 1 0 end
-		1   even? 2   even? · assert 0 1 end
-		1 1 neq?  1 2 neq?  · assert 0 1 end
-		1   odd?  2   odd?  · assert 1 0 end
-		0   zero? 1 zero?   · assert 1 0 end
+		assert 1 1 eq?   · 1 2 eq?   => 1 0 end
+		assert 1   even? · 2   even? => 0 1 end
+		assert 1 1 neq?  · 1 2 neq?  => 0 1 end
+		assert 1   odd?  · 2   odd?  => 1 0 end
+		assert 0   zero? · 1 zero?   => 1 0 end
 
 		( ** Miscellaneous Functions ** )
-		· assert end
+		assert · => end
 
 		( ** Stack Functions ** )
-		1 2 3 clear · assert end
-		1 2 3 drop  · assert 1 2 end
+		assert 1 2 3 clear => end
+		assert 1 2 3 drop  => 1 2 end
 
 		( ** Standard I/O Functions ** )
-		0 10 116 115 101 116 print0 · assert end
+		assert 0 10 116 115 101 116 print0 => end
 	`)
 
 	assert.Equal(t, "test\n", b.String())
