@@ -49,7 +49,7 @@ func Try(b bool, s string, as ...any) {
 //                         part three · collection functions                         //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// Dequeue removes and returns the first atom in an atom slice.
+// Dequeue removes and returns the first atom in a queue.
 func Dequeue(as *[]any) any {
 	Try(len(*as) == 0, "queue is empty")
 
@@ -58,33 +58,30 @@ func Dequeue(as *[]any) any {
 	return a
 }
 
-// DequeueTo removes and returns all atoms up to an atom in an atom slice.
+// DequeueTo removes and returns all atoms up to an atom in a queue.
 func DequeueTo(as *[]any, a any) []any {
 	i := slices.Index(*as, a)
 	Try(i == -1, "queue is missing %v", a)
-
 	as2 := (*as)[:i]
 	*as = (*as)[i+1:]
 	return as2
 }
 
-// Peek returns the top integer on an integer slice.
+// Peek returns the last integer in a stack.
 func Peek(is *[]int) int {
 	Try(len(*is) == 0, "stack is empty")
-
 	return (*is)[len(*is)-1]
 }
 
-// Pop removes and returns the top integer on an integer slice.
+// Pop removes and returns the last integer in a stack.
 func Pop(is *[]int) int {
 	Try(len(*is) == 0, "stack is empty")
-
 	i := (*is)[len(*is)-1]
 	*is = (*is)[:len(*is)-1]
 	return i
 }
 
-// Push appends one or more integers to the top of an integer slice.
+// Push appends one or more integers to the end of a stack.
 func Push(is *[]int, xs ...int) {
 	*is = append(*is, xs...)
 }
@@ -93,7 +90,7 @@ func Push(is *[]int, xs ...int) {
 //                    part four · parsing and evaluating functions                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// Evaluate evaluates a Queue against a Stack.
+// Evaluate evaluates an queue against a stack.
 func Evaluate(as *[]any, is *[]int) {
 	for len(*as) > 0 {
 		switch a := Dequeue(as).(type) {
@@ -107,13 +104,13 @@ func Evaluate(as *[]any, is *[]int) {
 	}
 }
 
-// EvaluateString evaluates a string against a Stack.
+// EvaluateString evaluates a string against a stack.
 func EvaluateString(s string, is *[]int) {
 	as := Parse(s)
 	Evaluate(&as, is)
 }
 
-// Parse returns an atom slice from a string.
+// Parse returns a queue from a string.
 func Parse(s string) []any {
 	var as []any
 
@@ -135,27 +132,27 @@ func Parse(s string) []any {
 // part five-one · math operators
 //////////////////////////////////
 
-// OpAdd ( a b -- c ) adds the top two Stack integers.
+// OpAdd ( a b -- c ) adds the last two integers in a stack.
 func OpAdd(as *[]any, is *[]int) {
 	Push(is, Pop(is)+Pop(is))
 }
 
-// OpDivide ( a b -- c ) divides the top two Stack integers.
+// OpDivide ( a b -- c ) divides the last two integers in a stack.
 func OpDivide(as *[]any, is *[]int) {
 	Push(is, Pop(is)/Pop(is))
 }
 
-// OpModulo ( a b -- c ) modulos the top two Stack integers.
+// OpModulo ( a b -- c ) modulos the last two integers in a stack.
 func OpModulo(as *[]any, is *[]int) {
 	Push(is, Pop(is)%Pop(is))
 }
 
-// OpMultiply ( a b -- c ) multiplies the top two Stack integers.
+// OpMultiply ( a b -- c ) multiplies the last two integers in a stack.
 func OpMultiply(as *[]any, is *[]int) {
 	Push(is, Pop(is)*Pop(is))
 }
 
-// OpSubtract ( a b -- c ) subtracts the top two Stack integers.
+// OpSubtract ( a b -- c ) subtracts the last two integers in a stack.
 func OpSubtract(as *[]any, is *[]int) {
 	Push(is, Pop(is)-Pop(is))
 }
@@ -163,23 +160,23 @@ func OpSubtract(as *[]any, is *[]int) {
 // part five-two · stack operators
 ///////////////////////////////////
 
-// OpDup ( a -- a a ) duplicates the top Stack integer.
+// OpDup ( a -- a a ) duplicates the last integer in a stack.
 func OpDup(as *[]any, is *[]int) {
 	Push(is, Peek(is))
 }
 
-// OpLen ( -- a ) pushes the Stack length.
+// OpLen ( -- a ) pushes the length of a stack.
 func OpLen(as *[]any, is *[]int) {
 	Push(is, len(*is))
 }
 
-// OpRot ( a b c -- b c a ) rotates the top three Stack integers.
+// OpRot ( a b c -- b c a ) rotates the last three integer in a stack.
 func OpRot(as *[]any, is *[]int) {
 	a, b, c := Pop(is), Pop(is), Pop(is)
 	Push(is, b, a, c)
 }
 
-// OpSwap ( a b -- b a ) swaps the top two Stack integers.
+// OpSwap ( a b -- b a ) swaps the last two integers in a stack.
 func OpSwap(as *[]any, is *[]int) {
 	Push(is, Pop(is), Pop(is))
 }
@@ -187,7 +184,7 @@ func OpSwap(as *[]any, is *[]int) {
 // part five-three · logical operators
 ///////////////////////////////////////
 
-// OpEq ( a b -- c ) pushes 1 if the top two Stack integers are equal.
+// OpEq ( a b -- c ) pushes 1 if the last two integers in a stack are equal.
 func OpEq(as *[]any, is *[]int) {
 	if Pop(is) == Pop(is) {
 		Push(is, 1)
@@ -199,7 +196,7 @@ func OpEq(as *[]any, is *[]int) {
 // part five-four · block operators
 /////////////////////////////////////
 
-// OpAssert ( a -- ) panics if the Stack doesn't match the given atoms.
+// OpAssert ( a -- ) panics if a stack doesn't match the given atoms.
 func OpAssert(as *[]any, is *[]int) {
 	xs := DequeueTo(as, "end")
 	slices.Reverse(xs)
@@ -235,7 +232,7 @@ func OpDef(as *[]any, is *[]int) {
 	}
 }
 
-// OpIf ( a -- ) evaluates a conditional if the top Stack integer is true.
+// OpIf ( a -- ) evaluates a conditional if the last integer in a stack is true.
 func OpIf(as *[]any, is *[]int) {
 	var as1, as2 []any
 	i := slices.Index(*as, "else")
@@ -272,7 +269,7 @@ func OpLoop(as *[]any, is *[]int) {
 // part five-five · i/o & eval operators
 /////////////////////////////////////////
 
-// OpDump ( -- ) prints the Stack.
+// OpDump ( -- ) prints a stack to Stdout.
 func OpDump(as *[]any, is *[]int) {
 	var ss []string
 	for _, i := range *is {
@@ -282,7 +279,7 @@ func OpDump(as *[]any, is *[]int) {
 	fmt.Fprintf(Stdout, "[ %s ]\n", strings.Join(ss, " "))
 }
 
-// OpEval ( ... -- ) evaluates the Stack up to an EOF zero.
+// OpEval ( ... -- ) evaluates a stack as text up to an EOF zero.
 func OpEval(as *[]any, is *[]int) {
 	var rs []rune
 	for len(*is) > 0 {
@@ -298,7 +295,7 @@ func OpEval(as *[]any, is *[]int) {
 	}
 }
 
-// OpInput ( -- ... ) pushes a line from Stdin ending with an EOF zero.
+// OpInput ( -- ... ) pushes a line from Stdin to a stack.
 func OpInput(as *[]any, is *[]int) {
 	r := bufio.NewReader(Stdin)
 	bs, _ := r.ReadBytes('\n')
@@ -310,7 +307,7 @@ func OpInput(as *[]any, is *[]int) {
 	}
 }
 
-// OpPrint ( a -- ) prints the top Stack integer.
+// OpPrint ( a -- ) prints the last integer in a stack as Unicode.
 func OpPrint(as *[]any, is *[]int) {
 	fmt.Fprintf(Stdout, "%c", Pop(is))
 }
@@ -324,29 +321,29 @@ const Stlib = `
 	( ** Boolean Functions ** )
 
 	def not
-		( a -- b ) ( Negate the top Stack integer. )
+		( a -- b ) ( Negate the last stack integer. )
 		dup 2 * · swap -
 	end
 
 	( ** Conditional Functions ** )
 
 	def even?
-		( a -- b ) ( Push 1 if the top Stack integer is even. )
+		( a -- b ) ( Push 1 if the last stack integer is even. )
 		2 swap % · zero? if 1 else 0 then
 	end
 
 	def neq?
-		( a b -- c ) ( Push 1 if the top two Stack integers are not equal. )
+		( a b -- c ) ( Push 1 if the last two integers in a stack are not equal. )
 		eq? · if 0 else 1 then
 	end
 
 	def odd?
-		( a -- b ) ( Push 1 if the top Stack integer is odd. )
+		( a -- b ) ( Push 1 if the last stack integer is odd. )
 		2 swap % · zero? if 0 else 1 then
 	end
 
 	def zero?
-		( a -- b ) ( Push 1 if the top Stack integer is zero. )
+		( a -- b ) ( Push 1 if the last Stack integer is zero. )
 		0 eq? · if 1 else 0 then
 	end
 
@@ -366,12 +363,12 @@ const Stlib = `
 	( ** Stack Functions ** )
 
 	def clear
-		( ... -- ) ( Drop all Stack integers. )
+		( ... -- ) ( Drop all stack integers. )
 		loop · len zero? if break else drop · then · done
 	end
 
 	def drop
-		( a -- ) ( Drop the top Stack integer. )
+		( a -- ) ( Drop the last stack integer. )
 		if then
 	end
 
