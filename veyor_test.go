@@ -155,10 +155,10 @@ func TestOperators(t *testing.T) {
 		assert 3 5 - => 2 end
 
 		( ** Stack Operators ** )
-		assert 1 dup     => 1 1   end
-		assert 1 len     => 1 1   end
-		assert 1 2 swap  => 2 1   end
-		assert 1 2 3 rot => 2 3 1 end
+		assert 1 dup      => 1 1   end
+		assert 1 len      => 1 1   end
+		assert 1 2 swap   => 2 1   end
+		assert 1 2 3 roll => 2 3 1 end
 
 		( ** Block Operators ** )
 		assert ( )                =>   end
@@ -183,40 +183,21 @@ func TestOperators(t *testing.T) {
 
 func TestStlib(t *testing.T) {
 	// setup
-	b := mockStreams("test\n")
+	b := mockStreams("")
 
 	// success
 	evalCode(`
-		( ** Conditional Functions ** )
-		assert 1 1 eq?   · 1 2 eq?   => 1 0 end
-		assert 1   even? · 2   even? => 0 1 end
-		assert 1 1 neq?  · 1 2 neq?  => 0 1 end
-		assert 1   odd?  · 2   odd?  => 1 0 end
-		assert 0   zero? · 1 zero?   => 1 0 end
-
-		( ** Mathematical Functions ** )
-		assert 2 !        => -2 end
-		assert 0 ? · -1 ? => 0 1 end
-
-		( ** Miscellaneous Functions ** )
-		assert · => end
-
-		( ** Stack Functions ** )
-		assert 1 2 3 clear => end
-		assert 1 2 3 drop  => 1 2 end
-
-		( ** Standard I/O Functions ** )
-		assert 0 10 116 115 101 116 print0 => end
+		assert ·                 =>     end
+		assert 1 2 drop          => 1   end
+		assert 1 1 eq? 1 2 eq?   => 1 0 end
+		assert 0 even? 1 even?   => 1 0 end
+		assert 0 false? 1 false? => 1 0 end
+		assert 1 2 neq? 1 1 neq? => 1 0 end
+		assert 1 odd? 2 odd?     => 1 0 end
+		assert 1 true? 0 true?   => 1 0 end
+		assert 1 2 clear         =>     end
+		assert 0 0 116 print0    => 0   end
 	`)
 
-	assert.Equal(t, "test\n", b.String())
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-//                           part seven · the main runtime                           //
-///////////////////////////////////////////////////////////////////////////////////////
-
-func TestInit(t *testing.T) {
-	// success
-	assert.NotEmpty(t, Opers)
+	assert.Equal(t, "t", b.String())
 }

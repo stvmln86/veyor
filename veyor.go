@@ -136,180 +136,120 @@ func Parse(s string) []any {
 //                           part five · operator functions                          //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// part five-one · math operators
-//////////////////////////////////
+// init initialises the Opers map.
+func init() {
+	Opers = map[string]Oper{
+		// math operators
+		"+": func(as *[]any, is *[]int) { Push(is, Pop(is)+Pop(is)) },
+		"/": func(as *[]any, is *[]int) { Push(is, Pop(is)/Pop(is)) },
+		"%": func(as *[]any, is *[]int) { Push(is, Pop(is)%Pop(is)) },
+		"*": func(as *[]any, is *[]int) { Push(is, Pop(is)*Pop(is)) },
+		"-": func(as *[]any, is *[]int) { Push(is, Pop(is)-Pop(is)) },
+		">": func(as *[]any, is *[]int) {
+			if Pop(is) > Pop(is) {
+				Push(is, 1)
+			} else {
+				Push(is, 0)
+			}
+		},
 
-// OpAdd ( a b -- c ) adds the last two integers in a stack.
-func OpAdd(as *[]any, is *[]int) {
-	Push(is, Pop(is)+Pop(is))
-}
+		// stack operators
+		"dup":  func(as *[]any, is *[]int) { Push(is, Peek(is)) },
+		"len":  func(as *[]any, is *[]int) { Push(is, len(*is)) },
+		"swap": func(as *[]any, is *[]int) { Push(is, Pop(is), Pop(is)) },
+		"roll": func(as *[]any, is *[]int) {
+			a, b, c := Pop(is), Pop(is), Pop(is)
+			Push(is, b, a, c)
+		},
 
-// OpDivide ( a b -- c ) divides the last two integers in a stack.
-func OpDivide(as *[]any, is *[]int) {
-	Push(is, Pop(is)/Pop(is))
-}
+		// block operators
+		"break": func(as *[]any, is *[]int) { Break = true },
+		"(":     func(as *[]any, is *[]int) { DequeueTo(as, ")") },
 
-// OpGreater ( a b -- c ) returns true if the top stack integer is greater than the second.
-func OpGreater(as *[]any, is *[]int) {
-	if Pop(is) > Pop(is) {
-		Push(is, 1)
-	} else {
-		Push(is, 0)
+		"assert": func(as *[]any, _ *[]int) {
+			as1 := DequeueTo(as, "=>")
+			is1, is2 := new([]int), new([]int)
+			for _, a := range DequeueTo(as, "end") {
+				*is2 = append(*is2, a.(int))
+			}
+
+			EvaluateCopy(&as1, is1)
+			Try(!slices.Equal(*is1, *is2),
+				"assert: %v should equal %v, not %v\n", as1, *is2, *is1,
+			)
+		},
+
+		"def": func(as *[]any, is *[]int) {
+			xs := DequeueTo(as, "end")
+			Try(len(xs) < 2, `"def" missing name/body`)
+
+			_, ok := xs[0].(string)
+			Try(!ok, `"def" name is wrong type`)
+
+			Opers[xs[0].(string)] = func(as *[]any, is *[]int) {
+				xs := xs[1:]
+				Evaluate(&xs, is)
+			}
+		},
+
+		"if": func(as *[]any, is *[]int) {
+			var as1, as2 []any
+			i := slices.Index(*as, "else")
+
+			if i != -1 && i < slices.Index(*as, "then") {
+				as2 = DequeueTo(as, "else")
+				as1 = DequeueTo(as, "then")
+			} else {
+				as2 = DequeueTo(as, "then")
+			}
+
+			if Pop(is) != 0 {
+				Evaluate(&as2, is)
+			} else {
+				Evaluate(&as1, is)
+			}
+		},
+
+		"loop": func(as *[]any, is *[]int) {
+			xs := DequeueTo(as, "done")
+
+			for {
+				EvaluateCopy(&xs, is)
+				if Break {
+					Break = false
+					break
+				}
+			}
+		},
+
+		// i/o & eval operators
+		"dump":  func(as *[]any, is *[]int) { fmt.Fprintf(Stdout, ": %v\n", *is) },
+		"print": func(as *[]any, is *[]int) { fmt.Fprintf(Stdout, "%c", Pop(is)) },
+
+		"eval": func(as *[]any, is *[]int) {
+			var rs []rune
+			for len(*is) > 0 {
+				if i := Pop(is); i == 0 {
+					break
+				} else {
+					rs = append(rs, rune(i))
+				}
+			}
+
+			EvaluateString(string(rs), is)
+		},
+
+		"input": func(as *[]any, is *[]int) {
+			r := bufio.NewReader(Stdin)
+			bs, _ := r.ReadBytes('\n')
+			slices.Reverse(bs)
+
+			Push(is, 0)
+			for _, b := range bs {
+				Push(is, int(b))
+			}
+		},
 	}
-}
-
-// OpModulo ( a b -- c ) modulos the last two integers in a stack.
-func OpModulo(as *[]any, is *[]int) {
-	Push(is, Pop(is)%Pop(is))
-}
-
-// OpMultiply ( a b -- c ) multiplies the last two integers in a stack.
-func OpMultiply(as *[]any, is *[]int) {
-	Push(is, Pop(is)*Pop(is))
-}
-
-// OpSubtract ( a b -- c ) subtracts the last two integers in a stack.
-func OpSubtract(as *[]any, is *[]int) {
-	Push(is, Pop(is)-Pop(is))
-}
-
-// part five-two · stack operators
-///////////////////////////////////
-
-// OpDup ( a -- a a ) duplicates the last integer in a stack.
-func OpDup(as *[]any, is *[]int) {
-	Push(is, Peek(is))
-}
-
-// OpLen ( -- a ) pushes the length of a stack.
-func OpLen(as *[]any, is *[]int) {
-	Push(is, len(*is))
-}
-
-// OpRot ( a b c -- b c a ) rotates the last three integer in a stack.
-func OpRot(as *[]any, is *[]int) {
-	a, b, c := Pop(is), Pop(is), Pop(is)
-	Push(is, b, a, c)
-}
-
-// OpSwap ( a b -- b a ) swaps the last two integers in a stack.
-func OpSwap(as *[]any, is *[]int) {
-	Push(is, Pop(is), Pop(is))
-}
-
-// part five-three · block operators
-/////////////////////////////////////
-
-// OpAssert ( a -- ) panics if a stack doesn't match the given atoms.
-func OpAssert(as *[]any, _ *[]int) {
-	is1 := new([]int)
-	is2 := new([]int)
-	as1 := DequeueTo(as, "=>")
-	for _, a := range DequeueTo(as, "end") {
-		*is2 = append(*is2, a.(int))
-	}
-
-	EvaluateCopy(&as1, is1)
-	Try(!slices.Equal(*is1, *is2),
-		"assert: %v should equal %v, not %v\n", as1, *is2, *is1,
-	)
-}
-
-// OpBreak ( -- ) breaks the current loop.
-func OpBreak(as *[]any, is *[]int) {
-	Break = true
-}
-
-// OpComment ( -- ) defines a comment.
-func OpComment(as *[]any, is *[]int) {
-	DequeueTo(as, ")")
-}
-
-// OpDef ( -- ) defines a custom operator.
-func OpDef(as *[]any, is *[]int) {
-	xs := DequeueTo(as, "end")
-	Try(len(xs) < 2, `"def" missing name/body`)
-
-	_, ok := xs[0].(string)
-	Try(!ok, `"def" name is wrong type`)
-
-	Opers[xs[0].(string)] = func(as *[]any, is *[]int) {
-		xs := xs[1:]
-		Evaluate(&xs, is)
-	}
-}
-
-// OpIf ( a -- ) evaluates a conditional if the last integer in a stack is true.
-func OpIf(as *[]any, is *[]int) {
-	var as1, as2 []any
-	i := slices.Index(*as, "else")
-
-	if i != -1 && i < slices.Index(*as, "then") {
-		as2 = DequeueTo(as, "else")
-		as1 = DequeueTo(as, "then")
-	} else {
-		as2 = DequeueTo(as, "then")
-	}
-
-	if Pop(is) != 0 {
-		Evaluate(&as2, is)
-	} else {
-		Evaluate(&as1, is)
-	}
-}
-
-// OpLoop ( -- ) evaluates a loop until broken.
-func OpLoop(as *[]any, is *[]int) {
-	xs := DequeueTo(as, "done")
-
-	for {
-		EvaluateCopy(&xs, is)
-		if Break {
-			Break = false
-			break
-		}
-	}
-}
-
-// part five-four · i/o & eval operators
-/////////////////////////////////////////
-
-// OpDump ( -- ) prints a stack to Stdout.
-func OpDump(as *[]any, is *[]int) {
-	fmt.Fprintf(Stdout, ": %v\n", *is)
-}
-
-// OpEval ( ... -- ) evaluates a stack as text up to an EOF zero.
-func OpEval(as *[]any, is *[]int) {
-	var rs []rune
-	for len(*is) > 0 {
-		if i := Pop(is); i == 0 {
-			break
-		} else {
-			rs = append(rs, rune(i))
-		}
-	}
-
-	if s := strings.TrimSpace(string(rs)); s != "" {
-		EvaluateString(s, is)
-	}
-}
-
-// OpInput ( -- ... ) pushes a line from Stdin to a stack.
-func OpInput(as *[]any, is *[]int) {
-	r := bufio.NewReader(Stdin)
-	bs, _ := r.ReadBytes('\n')
-	slices.Reverse(bs)
-
-	Push(is, 0)
-	for _, b := range bs {
-		Push(is, int(b))
-	}
-}
-
-// OpPrint ( a -- ) prints the last integer in a stack as Unicode.
-func OpPrint(as *[]any, is *[]int) {
-	fmt.Fprintf(Stdout, "%c", Pop(is))
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -318,107 +258,31 @@ func OpPrint(as *[]any, is *[]int) {
 
 // Stlib is Veyor's standard library.
 const Stlib = `
-	( ** Conditional Functions ** )
+	def ·      ( --       )                    end
+	def drop   ( a --     ) if then            end
+	def eq?    ( a b -- b ) - if 0 else 1 then end
+	def even?  ( a -- b   ) 2 swap % false?    end
+	def false? ( a -- b   ) if 0 else 1 then   end
+	def neq?   ( a b -- c ) eq? false?         end
+	def odd?   ( a -- b   ) 2 swap % true?     end
+	def true?  ( a -- b   ) if 1 else 0 then   end
 
-	def eq?
-		( a b -- c ) ( Push 1 if the last two stack integers are equal. )
-		- · if 0 else 1 then
+	def clear ( ... --   )
+		loop · len false? if break else drop then · done
 	end
 
-	def even?
-		( a -- b ) ( Push 1 if the last stack integer is even. )
-		2 swap % · zero? if 1 else 0 then
+	def repl ( -- )
+		loop · 0 32 62 print0 input eval len if dump then · done
 	end
 
-	def neq?
-		( a b -- c ) ( Push 1 if the last two integers in a stack are not equal. )
-		- · if 1 else 0 then
-	end
-
-	def odd?
-		( a -- b ) ( Push 1 if the last stack integer is odd. )
-		2 swap % · zero? if 0 else 1 then
-	end
-
-	def zero?
-		( a -- b ) ( Push 1 if the last Stack integer is zero. )
-		0 eq? · if 1 else 0 then
-	end
-
-	( ** Interactive Functions ** )
-
-	def repl
-		( -- ) ( Launch a read-evaluate-print loop. )
-		loop · 0 32 62 print0 · input eval · len if dump then · done
-	end
-
-	( ** Mathematical Functions ** )
-
-	def ! ( a -- b · negate a ) · dup 2 * swap -   · end
-	def ? ( a -- b   · bool a ) · if 1 else 0 then · end
-
-	( ** Miscellaneous Functions ** )
-
-	def ·
-		( -- ) ( Do nothing. )
-	end
-
-	( ** Stack Functions ** )
-
-	def clear
-		( ... -- ) ( Drop all stack integers. )
-		loop · len zero? if break else drop · then · done
-	end
-
-	def drop
-		( a -- ) ( Drop the last stack integer. )
-		if then
-	end
-
-	( ** Standard I/O Functions ** )
-
-	def print0
-		( a... -- ) ( Print until an EOF zero. )
-		loop · dup zero? if drop break else print then · done
+	def print0 ( a... -- )
+		loop · dup false? if drop break else print then · done
 	end
 `
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //                           part seven · the main runtime                           //
 ///////////////////////////////////////////////////////////////////////////////////////
-
-// init initialises the main Veyor program.
-func init() {
-	Opers = map[string]Oper{
-		// math operators
-		"+": OpAdd,
-		"/": OpDivide,
-		">": OpGreater,
-		"%": OpModulo,
-		"*": OpMultiply,
-		"-": OpSubtract,
-
-		// stack operators
-		"dup":  OpDup,
-		"len":  OpLen,
-		"rot":  OpRot,
-		"swap": OpSwap,
-
-		// block operators
-		"assert": OpAssert,
-		"break":  OpBreak,
-		"(":      OpComment,
-		"def":    OpDef,
-		"if":     OpIf,
-		"loop":   OpLoop,
-
-		// i/o & eval operators
-		"dump":  OpDump,
-		"eval":  OpEval,
-		"input": OpInput,
-		"print": OpPrint,
-	}
-}
 
 // main runs the main Veyor program.
 func main() {
