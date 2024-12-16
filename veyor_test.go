@@ -16,7 +16,7 @@ import (
 ///////////////////////////////////////////////////////////////////////////////////////
 
 func evalCode(s string) {
-	EvaluateString(Stlib+s, NewStack())
+	EvaluateString(Stlib+s, new([]int))
 }
 
 func mockStreams(s string) *bytes.Buffer {
@@ -26,139 +26,64 @@ func mockStreams(s string) *bytes.Buffer {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                             part two · the queue type                             //
+//                          part two · collection functions                          //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-func TestNewQueue(t *testing.T) {
-	// success
-	q := NewQueue(123)
-	assert.Equal(t, []any{123}, q.Atoms)
-}
-
-func TestQueueDequeue(t *testing.T) {
+func TestDequeue(t *testing.T) {
 	// setup
-	q := NewQueue(123)
+	as := &[]any{1}
 
 	// success
-	a := q.Dequeue()
-	assert.Equal(t, 123, a)
-	assert.Empty(t, q.Atoms)
+	a := Dequeue(as)
+	assert.Equal(t, 1, a)
+	assert.Empty(t, *as)
 
-	// error - Queue is empty
-	defer func() { assert.Equal(t, "Queue is empty", recover()) }()
-	q.Dequeue()
+	// error - queue is empty
+	defer func() { assert.Equal(t, "queue is empty", recover()) }()
+	Dequeue(as)
 }
 
-func TestQueueDequeueTo(t *testing.T) {
+func TestDequeueTo(t *testing.T) {
 	// setup
-	q := NewQueue(123, "end")
+	as := &[]any{1, "end"}
 
 	// success
-	as := q.DequeueTo("end")
-	assert.Equal(t, []any{123}, as)
-	assert.Empty(t, q.Atoms)
+	xs := DequeueTo(as, "end")
+	assert.Equal(t, []any{1}, xs)
+	assert.Empty(t, *as)
 
-	// error - Queue is missing end
-	defer func() { assert.Equal(t, "Queue is missing end", recover()) }()
-	q.DequeueTo("end")
+	// error - queue is missing end
+	defer func() { assert.Equal(t, "queue is missing end", recover()) }()
+	DequeueTo(as, "end")
 }
 
-func TestQueueEmpty(t *testing.T) {
-	// success - true
-	ok := NewQueue().Empty()
-	assert.True(t, ok)
-
-	// success - false
-	ok = NewQueue(123).Empty()
-	assert.False(t, ok)
-}
-
-func TestQueueEnqueue(t *testing.T) {
-	// setup
-	q := NewQueue()
-
+func TestPeek(t *testing.T) {
 	// success
-	q.Enqueue(123, 456)
-	assert.Equal(t, []any{123, 456}, q.Atoms)
-}
-
-func TestQueueIndex(t *testing.T) {
-	// success
-	i := NewQueue(123, 456).Index(456)
+	i := Peek(&[]int{1})
 	assert.Equal(t, 1, i)
 }
 
-func TestQueueLen(t *testing.T) {
-	// success
-	i := NewQueue(123).Len()
-	assert.Equal(t, 1, i)
-}
-
-func TestQueueString(t *testing.T) {
-	// success
-	s := NewQueue(123, "abc").String()
-	assert.Equal(t, "123 abc", s)
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-//                            part three · the stack type                            //
-///////////////////////////////////////////////////////////////////////////////////////
-
-func TestNewStack(t *testing.T) {
-	// success
-	s := NewStack(123)
-	assert.Equal(t, []int{123}, s.Items)
-}
-
-func TestStackEmpty(t *testing.T) {
-	// success - true
-	ok := NewStack().Empty()
-	assert.True(t, ok)
-
-	// success - false
-	ok = NewStack(123).Empty()
-	assert.False(t, ok)
-}
-
-func TestStackLen(t *testing.T) {
-	// success
-	i := NewStack(123).Len()
-	assert.Equal(t, 1, i)
-}
-
-func TestStackPeek(t *testing.T) {
-	// success
-	i := NewStack(123).Peek()
-	assert.Equal(t, 123, i)
-}
-
-func TestStackPop(t *testing.T) {
+func TestPop(t *testing.T) {
 	// setup
-	s := NewStack(123)
+	is := &[]int{1}
 
 	// success
-	i := s.Pop()
-	assert.Equal(t, 123, i)
-	assert.Empty(t, s.Items)
+	i := Pop(is)
+	assert.Equal(t, 1, i)
+	assert.Empty(t, *is)
 
-	// error - Stack is empty
-	defer func() { assert.Equal(t, "Stack is empty", recover()) }()
-	s.Pop()
+	// error - stack is empty
+	defer func() { assert.Equal(t, "stack is empty", recover()) }()
+	Pop(is)
 }
 
-func TestStackPush(t *testing.T) {
+func TestPush(t *testing.T) {
 	// setup
-	s := NewStack()
+	is := new([]int)
 
 	// success
-	s.Push(123, 456)
-	assert.Equal(t, []int{123, 456}, s.Items)
-}
-
-func TestStackString(t *testing.T) {
-	// success
-	s := NewStack(123, 456).String()
-	assert.Equal(t, "123 456", s)
+	Push(is, 1, 2)
+	assert.Equal(t, []int{1, 2}, *is)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -167,36 +92,27 @@ func TestStackString(t *testing.T) {
 
 func TestEvaluate(t *testing.T) {
 	// setup
-	q := NewQueue(1, 2, "+")
-	s := NewStack()
+	as := &[]any{1, 2, "+"}
+	is := new([]int)
 
 	// success
-	Evaluate(q, s)
-	assert.Equal(t, []int{3}, s.Items)
-}
-
-func TestEvaluateSlice(t *testing.T) {
-	// setup
-	s := NewStack()
-
-	// success
-	EvaluateSlice([]any{1, 2, "+"}, s)
-	assert.Equal(t, []int{3}, s.Items)
+	Evaluate(as, is)
+	assert.Equal(t, []int{3}, *is)
 }
 
 func TestEvaluateString(t *testing.T) {
 	// setup
-	s := NewStack()
+	is := new([]int)
 
 	// success
-	EvaluateString("1 2 +", s)
-	assert.Equal(t, []int{3}, s.Items)
+	EvaluateString("1 2 +", is)
+	assert.Equal(t, []int{3}, *is)
 }
 
 func TestParse(t *testing.T) {
 	// success
-	as := Parse("123 abc\n")
-	assert.Equal(t, []any{123, "abc"}, as)
+	as := Parse("1 2 3 a b c\n")
+	assert.Equal(t, []any{1, 2, 3, "a", "b", "c"}, as)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

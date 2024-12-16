@@ -29,168 +29,88 @@ var Stdin io.Reader = os.Stdin
 var Stdout io.Writer = os.Stdout
 
 // Oper is a callable program function.
-type Oper func(*Queue, *Stack)
+type Oper func(*[]any, *[]int)
 
 // Opers is a map of all defined Opers.
 var Opers map[string]Oper
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                             part two · the queue type                             //
+//                          part two · collection functions                          //
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// Queue is a first-in-first-out queue of atoms.
-type Queue struct {
-	Atoms []any
-}
-
-// NewQueue returns a new Queue from zero or more atoms.
-func NewQueue(as ...any) *Queue {
-	return &Queue{as}
-}
-
-// Dequeue removes and returns the first atom in the Queue.
-func (q *Queue) Dequeue() any {
-	if len(q.Atoms) == 0 {
-		panic("Queue is empty")
+// Dequeue removes and returns the first atom in an atom slice.
+func Dequeue(as *[]any) any {
+	if len(*as) == 0 {
+		panic("queue is empty")
 	}
 
-	a := q.Atoms[0]
-	q.Atoms = q.Atoms[1:]
+	a := (*as)[0]
+	(*as) = (*as)[1:]
 	return a
 }
 
-// DequeueTo removes and returns all atoms up to an atom in the Queue.
-func (q *Queue) DequeueTo(a any) []any {
-	i := slices.Index(q.Atoms, a)
+// DequeueTo removes and returns all atoms up to an atom in an atom slice.
+func DequeueTo(as *[]any, a any) []any {
+	i := slices.Index(*as, a)
 	if i == -1 {
-		panic(fmt.Sprintf("Queue is missing %v", a))
+		panic(fmt.Sprintf("queue is missing %v", a))
 	}
 
-	as := q.Atoms[:i]
-	q.Atoms = q.Atoms[i+1:]
-	return as
+	as2 := (*as)[:i]
+	*as = (*as)[i+1:]
+	return as2
 }
 
-// Empty returns true if the Queue has no atoms.
-func (q *Queue) Empty() bool {
-	return len(q.Atoms) == 0
-}
-
-// Enqueue appends one or more atoms to the end of the Queue.
-func (q *Queue) Enqueue(as ...any) {
-	q.Atoms = append(q.Atoms, as...)
-}
-
-// Index returns the index of an atom in the Queue.
-func (q *Queue) Index(a any) int {
-	return slices.Index(q.Atoms, a)
-}
-
-// Len returns the number of atoms in the Queue.
-func (q *Queue) Len() int {
-	return len(q.Atoms)
-}
-
-// String returns the Queue as a string.
-func (q *Queue) String() string {
-	var ss []string
-	for _, a := range q.Atoms {
-		ss = append(ss, fmt.Sprintf("%v", a))
+// Peek returns the top integer on an integer slice.
+func Peek(is *[]int) int {
+	if len(*is) == 0 {
+		panic("stack is empty")
 	}
 
-	return strings.Join(ss, " ")
+	return (*is)[len(*is)-1]
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-//                            part three · the stack type                            //
-///////////////////////////////////////////////////////////////////////////////////////
-
-// Stack is a last-in-first-out stack of integers.
-type Stack struct {
-	Items []int
-}
-
-// NewStack returns a new Stack from zero or more integers.
-func NewStack(is ...int) *Stack {
-	return &Stack{is}
-}
-
-// Empty returns true if the Stack has no integers.
-func (s *Stack) Empty() bool {
-	return len(s.Items) == 0
-}
-
-// Len returns the number of integers on the Stack.
-func (s *Stack) Len() int {
-	return len(s.Items)
-}
-
-// Peek returns the top integer on the Stack.
-func (s *Stack) Peek() int {
-	if len(s.Items) == 0 {
-		panic("Stack is empty")
+// Pop removes and returns the top integer on an integer slice.
+func Pop(is *[]int) int {
+	if len(*is) == 0 {
+		panic("stack is empty")
 	}
 
-	return s.Items[len(s.Items)-1]
-}
-
-// Pop removes and returns the top integer on the Stack.
-func (s *Stack) Pop() int {
-	if len(s.Items) == 0 {
-		panic("Stack is empty")
-	}
-
-	i := s.Items[len(s.Items)-1]
-	s.Items = s.Items[:len(s.Items)-1]
+	i := (*is)[len(*is)-1]
+	*is = (*is)[:len(*is)-1]
 	return i
 }
 
-// Push appends one or more integers to the top of the Stack.
-func (s *Stack) Push(is ...int) {
-	s.Items = append(s.Items, is...)
-}
-
-// String returns the Stack as a string.
-func (s *Stack) String() string {
-	var ss []string
-	for _, a := range s.Items {
-		ss = append(ss, strconv.Itoa(a))
-	}
-
-	return strings.Join(ss, " ")
+// Push appends one or more integers to the top of an integer slice.
+func Push(is *[]int, xs ...int) {
+	*is = append(*is, xs...)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-//                    part four · parsing and evaluating functions                   //
+//                   part three · parsing and evaluating functions                   //
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Evaluate evaluates a Queue against a Stack.
-func Evaluate(q *Queue, s *Stack) {
-	for !q.Empty() {
-		switch a := q.Dequeue().(type) {
+func Evaluate(as *[]any, is *[]int) {
+	for len(*as) > 0 {
+		switch a := Dequeue(as).(type) {
 		case int:
-			s.Push(a)
+			Push(is, a)
 		case string:
 			f, ok := Opers[a]
 			if !ok {
 				panic(fmt.Sprintf("invalid operator %q", a))
 			}
 
-			f(q, s)
+			f(as, is)
 		}
 	}
 }
 
-// EvaluateSlice evaluates an atom slice against a Stack.
-func EvaluateSlice(as []any, s *Stack) {
-	q := NewQueue(as...)
-	Evaluate(q, s)
-}
-
 // EvaluateString evaluates a string against a Stack.
-func EvaluateString(s string, st *Stack) {
-	q := NewQueue(Parse(s)...)
-	Evaluate(q, st)
+func EvaluateString(s string, is *[]int) {
+	as := Parse(s)
+	Evaluate(&as, is)
 }
 
 // Parse returns an atom slice from a string.
@@ -216,63 +136,53 @@ func Parse(s string) []any {
 //////////////////////////////////
 
 // OpAdd ( a b -- c ) adds the top two Stack integers.
-func OpAdd(q *Queue, s *Stack) {
-	s.Push(s.Pop() + s.Pop())
-}
+func OpAdd(as *[]any, is *[]int) { Push(is, Pop(is)+Pop(is)) }
 
 // OpDivide ( a b -- c ) divides the top two Stack integers.
-func OpDivide(q *Queue, s *Stack) {
-	s.Push(s.Pop() / s.Pop())
-}
+func OpDivide(as *[]any, is *[]int) { Push(is, Pop(is)/Pop(is)) }
 
 // OpModulo ( a b -- c ) modulos the top two Stack integers.
-func OpModulo(q *Queue, s *Stack) {
-	s.Push(s.Pop() % s.Pop())
-}
+func OpModulo(as *[]any, is *[]int) { Push(is, Pop(is)%Pop(is)) }
 
 // OpMultiply ( a b -- c ) multiplies the top two Stack integers.
-func OpMultiply(q *Queue, s *Stack) {
-	s.Push(s.Pop() * s.Pop())
-}
+func OpMultiply(as *[]any, is *[]int) { Push(is, Pop(is)*Pop(is)) }
 
 // OpSubtract ( a b -- c ) subtracts the top two Stack integers.
-func OpSubtract(q *Queue, s *Stack) {
-	s.Push(s.Pop() - s.Pop())
-}
+func OpSubtract(as *[]any, is *[]int) { Push(is, Pop(is)-Pop(is)) }
 
 // part five-two · stack operators
 ///////////////////////////////////
 
 // OpDup ( a -- a a ) duplicates the top Stack integer.
-func OpDup(q *Queue, s *Stack) {
-	s.Push(s.Peek())
+func OpDup(as *[]any, is *[]int) {
+	Push(is, Peek(is))
 }
 
 // OpLen ( -- a ) pushes the Stack length.
-func OpLen(q *Queue, s *Stack) {
-	s.Push(s.Len())
+func OpLen(as *[]any, is *[]int) {
+	Push(is, len(*is))
 }
 
 // OpRot ( a b c -- b c a ) rotates the top three Stack integers.
-func OpRot(q *Queue, s *Stack) {
-	a, b, c := s.Pop(), s.Pop(), s.Pop()
-	s.Push(b, a, c)
+func OpRot(as *[]any, is *[]int) {
+	a, b, c := Pop(is), Pop(is), Pop(is)
+	Push(is, b, a, c)
 }
 
 // OpSwap ( a b -- b a ) swaps the top two Stack integers.
-func OpSwap(q *Queue, s *Stack) {
-	s.Push(s.Pop(), s.Pop())
+func OpSwap(as *[]any, is *[]int) {
+	Push(is, Pop(is), Pop(is))
 }
 
 // part five-three · logical operators
 ///////////////////////////////////////
 
 // OpEq ( a b -- c ) pushes 1 if the top two Stack integers are equal.
-func OpEq(q *Queue, s *Stack) {
-	if s.Pop() == s.Pop() {
-		s.Push(1)
+func OpEq(as *[]any, is *[]int) {
+	if Pop(is) == Pop(is) {
+		Push(is, 1)
 	} else {
-		s.Push(0)
+		Push(is, 0)
 	}
 }
 
@@ -280,74 +190,76 @@ func OpEq(q *Queue, s *Stack) {
 /////////////////////////////////////
 
 // OpAssert ( a -- ) panics if the Stack doesn't match the given atoms.
-func OpAssert(q *Queue, s *Stack) {
-	as := q.DequeueTo("end")
-	slices.Reverse(as)
+func OpAssert(as *[]any, is *[]int) {
+	xs := DequeueTo(as, "end")
+	slices.Reverse(xs)
 
-	if len(as) == 0 && !s.Empty() {
+	if len(xs) == 0 && len(*is) != 0 {
 		panic("assert error · stack should be empty")
 	}
 
-	for _, a := range as {
-		if s.Pop() != a.(int) {
-			q := NewQueue(as...)
-			panic(fmt.Sprintf("assert error · stack should be [%s]", q))
+	for _, a := range xs {
+		if Pop(is) != a.(int) {
+			panic(fmt.Sprintf("assert error · stack should be [%v]", xs))
 		}
 	}
 }
 
 // OpBreak ( -- ) breaks the current loop.
-func OpBreak(q *Queue, s *Stack) {
+func OpBreak(as *[]any, is *[]int) {
 	Break = true
 }
 
 // OpComment ( -- ) defines a comment.
-func OpComment(q *Queue, s *Stack) {
-	q.DequeueTo(")")
+func OpComment(as *[]any, is *[]int) {
+	DequeueTo(as, ")")
 }
 
 // OpDef ( -- ) defines a custom operator.
-func OpDef(q *Queue, s *Stack) {
-	as := q.DequeueTo("end")
+func OpDef(as *[]any, is *[]int) {
+	xs := DequeueTo(as, "end")
 
-	if len(as) < 2 {
+	if len(xs) < 2 {
 		panic(`"def" missing name/body`)
 	}
 
-	if _, ok := as[0].(string); !ok {
+	if _, ok := xs[0].(string); !ok {
 		panic(`"def" name is wrong type`)
 	}
 
-	Opers[as[0].(string)] = func(q *Queue, s *Stack) {
-		EvaluateSlice(as[1:], s)
+	Opers[xs[0].(string)] = func(as *[]any, is *[]int) {
+		xs := xs[1:]
+		Evaluate(&xs, is)
 	}
 }
 
 // OpIf ( a -- ) evaluates a conditional if the top Stack integer is true.
-func OpIf(q *Queue, s *Stack) {
-	var as0, as1 []any
-	i := q.Index("else")
+func OpIf(as *[]any, is *[]int) {
+	var as1, as2 []any
+	i := slices.Index(*as, "else")
 
-	if i != -1 && i < q.Index("then") {
-		as1 = q.DequeueTo("else")
-		as0 = q.DequeueTo("then")
+	if i != -1 && i < slices.Index(*as, "then") {
+		as2 = DequeueTo(as, "else")
+		as1 = DequeueTo(as, "then")
 	} else {
-		as1 = q.DequeueTo("then")
+		as2 = DequeueTo(as, "then")
 	}
 
-	if s.Pop() != 0 {
-		EvaluateSlice(as1, s)
+	if Pop(is) != 0 {
+		Evaluate(&as2, is)
 	} else {
-		EvaluateSlice(as0, s)
+		Evaluate(&as1, is)
 	}
 }
 
 // OpLoop ( -- ) evaluates a loop until broken.
-func OpLoop(q *Queue, s *Stack) {
-	as := q.DequeueTo("done")
+func OpLoop(as *[]any, is *[]int) {
+	xs := DequeueTo(as, "done")
 
 	for {
-		EvaluateSlice(as, s)
+		var xs2 = make([]any, len(xs))
+		copy(xs2, xs)
+		Evaluate(&xs2, is)
 		if Break {
 			Break = false
 			break
@@ -359,15 +271,20 @@ func OpLoop(q *Queue, s *Stack) {
 /////////////////////////////////////////
 
 // OpDump ( -- ) prints the Stack.
-func OpDump(q *Queue, s *Stack) {
-	fmt.Fprintf(Stdout, "[ %s ]\n", s.String())
+func OpDump(as *[]any, is *[]int) {
+	var ss []string
+	for _, i := range *is {
+		ss = append(ss, strconv.Itoa(i))
+	}
+
+	fmt.Fprintf(Stdout, "[ %s ]\n", strings.Join(ss, " "))
 }
 
 // OpEval ( ... -- ) evaluates the Stack up to an EOF zero.
-func OpEval(q *Queue, st *Stack) {
+func OpEval(as *[]any, is *[]int) {
 	var rs []rune
-	for !st.Empty() {
-		if i := st.Pop(); i == 0 {
+	for len(*is) > 0 {
+		if i := Pop(is); i == 0 {
 			break
 		} else {
 			rs = append(rs, rune(i))
@@ -375,25 +292,25 @@ func OpEval(q *Queue, st *Stack) {
 	}
 
 	if s := strings.TrimSpace(string(rs)); s != "" {
-		EvaluateString(s, st)
+		EvaluateString(s, is)
 	}
 }
 
 // OpInput ( -- ... ) pushes a line from Stdin ending with an EOF zero.
-func OpInput(q *Queue, s *Stack) {
+func OpInput(as *[]any, is *[]int) {
 	r := bufio.NewReader(Stdin)
 	bs, _ := r.ReadBytes('\n')
 	slices.Reverse(bs)
 
-	s.Push(0)
+	Push(is, 0)
 	for _, b := range bs {
-		s.Push(int(b))
+		Push(is, int(b))
 	}
 }
 
 // OpPrint ( a -- ) prints the top Stack integer.
-func OpPrint(q *Queue, s *Stack) {
-	fmt.Fprintf(Stdout, "%c", s.Pop())
+func OpPrint(as *[]any, is *[]int) {
+	fmt.Fprintf(Stdout, "%c", Pop(is))
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -511,9 +428,9 @@ func main() {
 
 	switch {
 	case *c != "":
-		EvaluateString(Stlib+*c+" dump", NewStack())
+		EvaluateString(Stlib+*c+"\ndump", new([]int))
 
 	default:
-		EvaluateString(Stlib+" repl", NewStack())
+		EvaluateString(Stlib+"\nrepl", new([]int))
 	}
 }
