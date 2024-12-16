@@ -150,14 +150,6 @@ func TestStackOperators(t *testing.T) {
 	`)
 }
 
-func TestLogicalOperators(t *testing.T) {
-	// success
-	evalCode(`
-		1 2 eq? · assert 0 end
-		2 2 eq? · assert 1 end
-	`)
-}
-
 func TestBlockOperators(t *testing.T) {
 	// success
 	evalCode(`
@@ -181,7 +173,7 @@ func TestIOEvalOperators(t *testing.T) {
 		116 print
 	`)
 
-	assert.Equal(t, "[ 123 ]\nt", b.String())
+	assert.Equal(t, ": [123]\nt", b.String())
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +190,7 @@ func TestStlib(t *testing.T) {
 		2 not · assert -2 end
 
 		( ** Conditional Functions ** )
+		1 1 eq? 1 2 eq?          · assert 1 0   end
 		1 even? 2 even?          · assert 0 1   end
 		1 1 neq? 1 2 neq?        · assert 0 1   end
 		1 odd?  2 odd?           · assert 1 0   end

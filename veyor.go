@@ -181,19 +181,7 @@ func OpSwap(as *[]any, is *[]int) {
 	Push(is, Pop(is), Pop(is))
 }
 
-// part five-three · logical operators
-///////////////////////////////////////
-
-// OpEq ( a b -- c ) pushes 1 if the last two integers in a stack are equal.
-func OpEq(as *[]any, is *[]int) {
-	if Pop(is) == Pop(is) {
-		Push(is, 1)
-	} else {
-		Push(is, 0)
-	}
-}
-
-// part five-four · block operators
+// part five-three · block operators
 /////////////////////////////////////
 
 // OpAssert ( a -- ) panics if a stack doesn't match the given atoms.
@@ -204,7 +192,7 @@ func OpAssert(as *[]any, is *[]int) {
 	Try(len(xs) == 0 && len(*is) != 0, "assert: stack should be empty")
 
 	for _, a := range xs {
-		Try(Pop(is) != a.(int), "assert: stack should be [%v]", xs)
+		Try(Pop(is) != a.(int), "assert: stack should be %v", xs)
 	}
 }
 
@@ -266,17 +254,12 @@ func OpLoop(as *[]any, is *[]int) {
 	}
 }
 
-// part five-five · i/o & eval operators
+// part five-four · i/o & eval operators
 /////////////////////////////////////////
 
 // OpDump ( -- ) prints a stack to Stdout.
 func OpDump(as *[]any, is *[]int) {
-	var ss []string
-	for _, i := range *is {
-		ss = append(ss, strconv.Itoa(i))
-	}
-
-	fmt.Fprintf(Stdout, "[ %s ]\n", strings.Join(ss, " "))
+	fmt.Fprintf(Stdout, ": %v\n", *is)
 }
 
 // OpEval ( ... -- ) evaluates a stack as text up to an EOF zero.
@@ -326,6 +309,11 @@ const Stlib = `
 	end
 
 	( ** Conditional Functions ** )
+
+	def eq?
+		( a b -- c ) ( Push 1 if the last two stack integers are equal. )
+		- · if 0 else 1 then
+	end
 
 	def even?
 		( a -- b ) ( Push 1 if the last stack integer is even. )
@@ -399,9 +387,6 @@ func init() {
 		"len":  OpLen,
 		"rot":  OpRot,
 		"swap": OpSwap,
-
-		// logical operators
-		"eq?": OpEq,
 
 		// block operators
 		"assert": OpAssert,
