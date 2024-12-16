@@ -29,6 +29,12 @@ func mockStreams(s string) *bytes.Buffer {
 //                            part two · helper functions                            //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+func TestBoolToInt(t *testing.T) {
+	// success
+	assert.Equal(t, 0, BoolToInt(false))
+	assert.Equal(t, 1, BoolToInt(true))
+}
+
 func TestTry(t *testing.T) {
 	// success
 	Try(false, "%s", "panic")
@@ -37,20 +43,6 @@ func TestTry(t *testing.T) {
 ///////////////////////////////////////////////////////////////////////////////////////
 //                         part three · collection functions                         //
 ///////////////////////////////////////////////////////////////////////////////////////
-
-func TestDequeue(t *testing.T) {
-	// setup
-	as := &[]any{1}
-
-	// success
-	a := Dequeue(as)
-	assert.Equal(t, 1, a)
-	assert.Empty(t, *as)
-
-	// error - queue is empty
-	defer func() { assert.Equal(t, "queue is empty", recover()) }()
-	Dequeue(as)
-}
 
 func TestDequeueTo(t *testing.T) {
 	// setup
@@ -111,7 +103,7 @@ func TestEvaluate(t *testing.T) {
 
 func TestEvaluateCopy(t *testing.T) {
 	// setup
-	as := &[]any{1, 2, "+"}
+	as := []any{1, 2, "+"}
 	is := new([]int)
 
 	// success

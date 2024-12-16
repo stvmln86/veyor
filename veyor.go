@@ -38,6 +38,15 @@ var Opers map[string]Oper
 //                            part two · helper functions                            //
 ///////////////////////////////////////////////////////////////////////////////////////
 
+// BoolToInt returns an integer from a boolean.
+func BoolToInt(b bool) int {
+	if b {
+		return 1
+	}
+
+	return 0
+}
+
 // Try panics on a true boolean with a formatted error message.
 func Try(b bool, s string, as ...any) {
 	if b {
@@ -48,15 +57,6 @@ func Try(b bool, s string, as ...any) {
 ///////////////////////////////////////////////////////////////////////////////////////
 //                         part three · collection functions                         //
 ///////////////////////////////////////////////////////////////////////////////////////
-
-// Dequeue removes and returns the first atom in a queue.
-func Dequeue(as *[]any) any {
-	Try(len(*as) == 0, "queue is empty")
-
-	a := (*as)[0]
-	(*as) = (*as)[1:]
-	return a
-}
 
 // DequeueTo removes and returns all atoms up to an atom in a queue.
 func DequeueTo(as *[]any, a any) []any {
@@ -93,7 +93,9 @@ func Push(is *[]int, xs ...int) {
 // Evaluate evaluates an queue against a stack.
 func Evaluate(as *[]any, is *[]int) {
 	for len(*as) > 0 {
-		switch a := Dequeue(as).(type) {
+		a := (*as)[0]
+		(*as) = (*as)[1:]
+		switch a := a.(type) {
 		case int:
 			Push(is, a)
 		case string:
@@ -105,9 +107,9 @@ func Evaluate(as *[]any, is *[]int) {
 }
 
 // EvaluateCopy evaluates a copy of a queue against a stack.
-func EvaluateCopy(as *[]any, is *[]int) {
-	xs := make([]any, len(*as))
-	copy(xs, *as)
+func EvaluateCopy(as []any, is *[]int) {
+	xs := make([]any, len(as))
+	copy(xs, as)
 	Evaluate(&xs, is)
 }
 
@@ -145,13 +147,7 @@ func init() {
 		"%": func(as *[]any, is *[]int) { Push(is, Pop(is)%Pop(is)) },
 		"*": func(as *[]any, is *[]int) { Push(is, Pop(is)*Pop(is)) },
 		"-": func(as *[]any, is *[]int) { Push(is, Pop(is)-Pop(is)) },
-		">": func(as *[]any, is *[]int) {
-			if Pop(is) > Pop(is) {
-				Push(is, 1)
-			} else {
-				Push(is, 0)
-			}
-		},
+		">": func(as *[]any, is *[]int) { Push(is, BoolToInt(Pop(is) > Pop(is))) },
 
 		// stack operators
 		"dup":  func(as *[]any, is *[]int) { Push(is, Peek(is)) },
@@ -173,7 +169,7 @@ func init() {
 				*is2 = append(*is2, a.(int))
 			}
 
-			EvaluateCopy(&as1, is1)
+			EvaluateCopy(as1, is1)
 			Try(!slices.Equal(*is1, *is2),
 				"assert: %v should equal %v, not %v\n", as1, *is2, *is1,
 			)
@@ -181,14 +177,11 @@ func init() {
 
 		"def": func(as *[]any, is *[]int) {
 			xs := DequeueTo(as, "end")
-			Try(len(xs) < 2, `"def" missing name/body`)
-
 			_, ok := xs[0].(string)
-			Try(!ok, `"def" name is wrong type`)
+			Try(len(xs) < 2 || !ok, `invalid def block`)
 
 			Opers[xs[0].(string)] = func(as *[]any, is *[]int) {
-				xs := xs[1:]
-				Evaluate(&xs, is)
+				EvaluateCopy(xs[1:], is)
 			}
 		},
 
@@ -214,7 +207,7 @@ func init() {
 			xs := DequeueTo(as, "done")
 
 			for {
-				EvaluateCopy(&xs, is)
+				EvaluateCopy(xs, is)
 				if Break {
 					Break = false
 					break
