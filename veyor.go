@@ -142,6 +142,15 @@ func OpDivide(as *[]any, is *[]int) {
 	Push(is, Pop(is)/Pop(is))
 }
 
+// OpGreater ( a b -- c ) returns true if the top stack integer is greater than the second.
+func OpGreater(as *[]any, is *[]int) {
+	if Pop(is) > Pop(is) {
+		Push(is, 1)
+	} else {
+		Push(is, 0)
+	}
+}
+
 // OpModulo ( a b -- c ) modulos the last two integers in a stack.
 func OpModulo(as *[]any, is *[]int) {
 	Push(is, Pop(is)%Pop(is))
@@ -379,6 +388,7 @@ func init() {
 		// math operators
 		"+": OpAdd,
 		"/": OpDivide,
+		">": OpGreater,
 		"%": OpModulo,
 		"*": OpMultiply,
 		"-": OpSubtract,

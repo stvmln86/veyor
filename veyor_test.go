@@ -138,6 +138,8 @@ func TestOperators(t *testing.T) {
 		assert 1 2 + => 3 end
 		assert 3 6 / => 2 end
 		assert 3 5 % => 2 end
+		assert 3 5 > => 1 end
+		assert 5 3 > => 0 end
 		assert 2 3 * => 6 end
 		assert 3 5 - => 2 end
 
